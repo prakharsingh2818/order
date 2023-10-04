@@ -2,5 +2,5 @@
 # Service version: 1.0.1
 # apibuilder 0.15.33 app.apibuilder.io/nashtech/order/latest/play_2_x_routes
 
-GET     /                                v1.controllers.Orders.index()
-GET     /:merchant_id/orders/:number     v1.controllers.Orders.getByNumber(merchant_id: String, number: String)
+GET     /                                com.nashtech.controllers.Orders.index()
+GET     /:merchant_id/orders/:number     com.nashtech.controllers.Orders.getByNumber(merchant_id: String, number: String)
