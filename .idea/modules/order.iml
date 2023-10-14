@@ -27,12 +27,12 @@
     <orderEntry type="library" name="sbt: com.amazonaws:jmespath-java:1.12.406:jar" level="project" />
     <orderEntry type="library" name="sbt: com.charleskorn.kaml:kaml:0.20.0:jar" level="project" />
     <orderEntry type="library" name="sbt: com.damnhandy:handy-uri-templates:2.1.8:jar" level="project" />
-    <orderEntry type="library" name="sbt: com.fasterxml.jackson.core:jackson-annotations:2.14.2:jar" level="project" />
-    <orderEntry type="library" name="sbt: com.fasterxml.jackson.core:jackson-core:2.14.2:jar" level="project" />
-    <orderEntry type="library" name="sbt: com.fasterxml.jackson.core:jackson-databind:2.14.2:jar" level="project" />
+    <orderEntry type="library" name="sbt: com.fasterxml.jackson.core:jackson-annotations:2.14.3:jar" level="project" />
+    <orderEntry type="library" name="sbt: com.fasterxml.jackson.core:jackson-core:2.14.3:jar" level="project" />
+    <orderEntry type="library" name="sbt: com.fasterxml.jackson.core:jackson-databind:2.14.3:jar" level="project" />
     <orderEntry type="library" name="sbt: com.fasterxml.jackson.dataformat:jackson-dataformat-cbor:2.12.6:jar" level="project" />
-    <orderEntry type="library" name="sbt: com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.11.4:jar" level="project" />
-    <orderEntry type="library" name="sbt: com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.11.4:jar" level="project" />
+    <orderEntry type="library" name="sbt: com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.14.3:jar" level="project" />
+    <orderEntry type="library" name="sbt: com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.14.3:jar" level="project" />
     <orderEntry type="library" name="sbt: com.fasterxml.jackson.module:jackson-module-parameter-names:2.11.4:jar" level="project" />
     <orderEntry type="library" name="sbt: com.fasterxml.jackson.module:jackson-module-scala_2.13:2.14.2:jar" level="project" />
     <orderEntry type="library" name="sbt: com.github.erosb:everit-json-schema:1.14.1:jar" level="project" />
@@ -79,9 +79,10 @@
     <orderEntry type="library" name="sbt: com.typesafe.play:play-ahc-ws_2.13:2.8.20:jar" level="project" />
     <orderEntry type="library" name="sbt: com.typesafe.play:play-akka-http-server_2.13:2.8.20:jar" level="project" />
     <orderEntry type="library" name="sbt: com.typesafe.play:play-exceptions:2.8.20:jar" level="project" />
-    <orderEntry type="library" name="sbt: com.typesafe.play:play-functional_2.13:2.9.4:jar" level="project" />
+    <orderEntry type="library" name="sbt: com.typesafe.play:play-functional_2.13:2.10.1:jar" level="project" />
     <orderEntry type="library" name="sbt: com.typesafe.play:play-guice_2.13:2.8.20:jar" level="project" />
-    <orderEntry type="library" name="sbt: com.typesafe.play:play-json_2.13:2.9.4:jar" level="project" />
+    <orderEntry type="library" name="sbt: com.typesafe.play:play-json-joda_2.13:2.10.1:jar" level="project" />
+    <orderEntry type="library" name="sbt: com.typesafe.play:play-json_2.13:2.10.1:jar" level="project" />
     <orderEntry type="library" name="sbt: com.typesafe.play:play-logback_2.13:2.8.20:jar" level="project" />
     <orderEntry type="library" name="sbt: com.typesafe.play:play-server_2.13:2.8.20:jar" level="project" />
     <orderEntry type="library" name="sbt: com.typesafe.play:play-streams_2.13:2.8.20:jar" level="project" />
@@ -142,7 +143,7 @@
     <orderEntry type="library" name="sbt: org.apache.kafka:kafka-clients:2.8.1:jar" level="project" />
     <orderEntry type="library" scope="TEST" name="sbt: org.atteo.classindex:classindex:3.4:jar" level="project" />
     <orderEntry type="library" scope="TEST" name="sbt: org.brotli:dec:0.1.2:jar" level="project" />
-    <orderEntry type="library" name="sbt: org.checkerframework:checker-qual:3.12.0:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.checkerframework:checker-qual:3.31.0:jar" level="project" />
     <orderEntry type="library" scope="TEST" name="sbt: org.eclipse.jetty.websocket:websocket-api:9.4.20.v20190813:jar" level="project" />
     <orderEntry type="library" scope="TEST" name="sbt: org.eclipse.jetty.websocket:websocket-client:9.4.20.v20190813:jar" level="project" />
     <orderEntry type="library" scope="TEST" name="sbt: org.eclipse.jetty.websocket:websocket-common:9.4.20.v20190813:jar" level="project" />
@@ -165,8 +166,12 @@
     <orderEntry type="library" name="sbt: org.jetbrains.kotlin:kotlin-stdlib:1.7.10:jar" level="project" />
     <orderEntry type="library" name="sbt: org.jetbrains.kotlinx:kotlinx-serialization-core-jvm:1.4.0:jar" level="project" />
     <orderEntry type="library" name="sbt: org.jetbrains:annotations:13.0:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.joda:joda-convert:2.2.2:jar" level="project" />
     <orderEntry type="library" name="sbt: org.json:json:20220320:jar" level="project" />
     <orderEntry type="library" name="sbt: org.lz4:lz4-java:1.8.0:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.playframework.anorm:anorm-tokenizer_2.13:2.7.0:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.playframework.anorm:anorm_2.13:2.7.0:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.postgresql:postgresql:42.6.0:jar" level="project" />
     <orderEntry type="library" name="sbt: org.projectlombok:lombok-utils:1.18.12:jar" level="project" />
     <orderEntry type="library" name="sbt: org.projectlombok:lombok:1.18.20:jar" level="project" />
     <orderEntry type="library" name="sbt: org.reactivestreams:reactive-streams:1.0.4:jar" level="project" />
