@@ -23,6 +23,7 @@ abstract class DBPollActor(schema: String = "public", table: String) extends Pol
   def process(record: ProcessQueueOrder): Try[Unit]
 
   override def processRecord(): Unit = {
+    log.info("Inside processRecord method")
     val record = getEarliestRecord(processingTable)
     safeProcessRecord(record)
 
@@ -30,12 +31,15 @@ abstract class DBPollActor(schema: String = "public", table: String) extends Pol
 
   def safeProcessRecord(record: ProcessQueueOrder) = {
     Try {
+      log.info("Inside safeProcessRecord method")
       process(record)
     } match {
       case Success(_) =>
+        log.info("Continuing with safeProcessRecord method")
         deleteProcessingQueueRecord(record.processingQueueId)
         insertJournalRecord(record)
       case Failure(ex) =>
+        log.info("Discontinuing with safeProcessRecord method")
         setErrors(record.processingQueueId, ex)
     }
   }
@@ -47,16 +51,17 @@ abstract class DBPollActor(schema: String = "public", table: String) extends Pol
 
   private def insertJournalRecord(record: ProcessQueueOrder) = {
     // TODO: Integrate with Database
-    SQL(InsertQuery(record)).executeInsert()
+    // SQL(InsertQuery(record)).executeInsert()
   }
 
   private def setErrors(processingQueueId: String, throwable: Throwable) = {
     // TODO: Integrate with Database
-    SQL(SetErrorsQuery(processingQueueId, throwable)).executeUpdate()
+    // SQL(SetErrorsQuery(processingQueueId, throwable)).executeUpdate()
   }
   private def getEarliestRecord(processingTable: String): ProcessQueueOrder = {
     // TODO: Integrate with database
-    SQL(BaseQuery).as(ProcessingQueueOrderParser().single)
+    // SQL(BaseQuery).as(ProcessingQueueOrderParser().single)
+    ProcessQueueOrder(processingQueueId = "1", id = "1", number = "1", merchantId = "1", submittedAt = DateTime.now(), total = 234.43, operation = "Insert")
   }
 
   private def BaseQuery =
