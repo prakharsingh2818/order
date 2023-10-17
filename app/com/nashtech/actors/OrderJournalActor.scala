@@ -14,7 +14,7 @@ class OrderJournalActor @Inject()(system: ActorSystem)
 extends DBPollActor(table = "orders") {
 
   override def preStart(): Unit = {
-    super.preStart()
+    // super.preStart()
     println("[OrderJournalActor] Inside preStart")
     log.info("[OrderJournalActor] Inside preStart")
     self ! "Insert"

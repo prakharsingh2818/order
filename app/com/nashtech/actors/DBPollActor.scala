@@ -57,7 +57,7 @@ abstract class DBPollActor(schema: String = "public", table: String) extends Pol
 
   private def insertJournalRecord(record: ProcessQueueOrder) = {
     // TODO: Integrate with Database
-    // database.withConnection(c: Connection => SQL(InsertQuery(record)).executeInsert())
+    //database.withConnection(c: Connection => SQL(InsertQuery(record)).executeInsert())
     // SQL(InsertQuery(record)).executeInsert()
   }
 

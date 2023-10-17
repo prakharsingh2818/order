@@ -13,7 +13,7 @@ object PollActorMessage {
 }
 
 @Singleton
-class PollActor @Inject()() extends Actor with ActorLogging {
+trait PollActor extends Actor with ActorLogging {
   import PollActorMessage._
 
   val system: ActorSystem = context.system
@@ -22,7 +22,7 @@ class PollActor @Inject()() extends Actor with ActorLogging {
   def initialDelay: FiniteDuration = FiniteDuration(10L, SECONDS)
   def delay: FiniteDuration = FiniteDuration(10, SECONDS)
 
-  def processRecord(): Unit = ()
+  def processRecord(): Unit
   def startPolling() = {
     system.scheduler.scheduleWithFixedDelay(initialDelay, delay, self, Poll)(pollContext)
   }
