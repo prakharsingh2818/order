@@ -1,8 +1,7 @@
 package com.nashtech.actors
 
-import anorm.{RowParser, SQL, Sql, SqlParser}
+import anorm.{RowParser, SQL, Sql, SqlParser, ~}
 import org.joda.time.DateTime
-import anorm.~
 
 import scala.util.{Failure, Success, Try}
 
@@ -20,6 +19,10 @@ abstract class DBPollActor(schema: String = "public", table: String) extends Pol
 
   startPolling()
 
+  override def preStart(): Unit = {
+    log.info("[DBPollActor] Pre-Start")
+    println("[DBPollActor] Pre-Start")
+  }
   def process(record: ProcessQueueOrder): Try[Unit]
 
   override def processRecord(): Unit = {
@@ -32,14 +35,17 @@ abstract class DBPollActor(schema: String = "public", table: String) extends Pol
   def safeProcessRecord(record: ProcessQueueOrder) = {
     Try {
       log.info("Inside safeProcessRecord method")
+      println("nside safeProcessRecord method")
       process(record)
     } match {
       case Success(_) =>
         log.info("Continuing with safeProcessRecord method")
+        println("Continuing with safeProcessRecord method")
         deleteProcessingQueueRecord(record.processingQueueId)
         insertJournalRecord(record)
       case Failure(ex) =>
         log.info("Discontinuing with safeProcessRecord method")
+        println("Discontinuing with safeProcessRecord method")
         setErrors(record.processingQueueId, ex)
     }
   }
@@ -51,6 +57,7 @@ abstract class DBPollActor(schema: String = "public", table: String) extends Pol
 
   private def insertJournalRecord(record: ProcessQueueOrder) = {
     // TODO: Integrate with Database
+    // database.withConnection(c: Connection => SQL(InsertQuery(record)).executeInsert())
     // SQL(InsertQuery(record)).executeInsert()
   }
 

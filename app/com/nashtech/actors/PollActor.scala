@@ -29,16 +29,19 @@ class PollActor @Inject()() extends Actor with ActorLogging {
   override def receive: Receive = {
     case Poll =>
       log.info("Inside receive method")
+      println("Inside receive method")
       safeProcessMessage()
   }
 
   private def safeProcessMessage(): Unit = {
     Try {
       log.info("Inside safeProcessMessage method")
+      println("Inside safeProcessMessage method")
       processRecord()
     }.recover {
       case ex =>
         log.info("Discontinuing with safeProcessMessage method")
+        println("Discontinuing with safeProcessMessage method")
         log.error(cause = ex, message = "Error processing messages")
     }
   }
