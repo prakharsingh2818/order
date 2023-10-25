@@ -1,34 +1,9 @@
-[0m[[0m[31merror[0m] [0m[0m/home/knoldus/order/app/com/nashtech/order/v1/NashtechOrderV1Client.scala:14:20: Order is already defined as case class Order[0m
-[0m[[0m[31merror[0m] [0m[0m  final case class Order([0m
-[0m[[0m[31merror[0m] [0m[0m                   ^[0m
-[0m[[0m[31merror[0m] [0m[0m/home/knoldus/order/app/com/nashtech/order/v1/NashtechOrderV1Client.scala:31:18: package is already defined as package object json[0m
-[0m[[0m[31merror[0m] [0m[0m  package object json {[0m
-[0m[[0m[31merror[0m] [0m[0m                 ^[0m
-[0m[[0m[31merror[0m] [0m[0m/home/knoldus/order/app/com/nashtech/order/v1/NashtechOrderV1Client.scala:135:10: Bindables is already defined as object Bindables[0m
-[0m[[0m[31merror[0m] [0m[0m  object Bindables {[0m
-[0m[[0m[31merror[0m] [0m[0m         ^[0m
-[0m[[0m[31merror[0m] [0m[0m/home/knoldus/order/app/com/nashtech/order/v1/NashtechOrderV1Client.scala:234:10: Constants is already defined as object Constants[0m
-[0m[[0m[31merror[0m] [0m[0m  object Constants {[0m
-[0m[[0m[31merror[0m] [0m[0m         ^[0m
-[0m[[0m[31merror[0m] [0m[0m/home/knoldus/order/app/com/nashtech/order/v1/NashtechOrderV1Client.scala:244:9: Client is already defined as class Client[0m
-[0m[[0m[31merror[0m] [0m[0m  class Client([0m
-[0m[[0m[31merror[0m] [0m[0m        ^[0m
-[0m[[0m[31merror[0m] [0m[0m/home/knoldus/order/app/com/nashtech/order/v1/NashtechOrderV1Client.scala:385:16: Authorization is already defined as trait Authorization[0m
-[0m[[0m[31merror[0m] [0m[0m  sealed trait Authorization extends _root_.scala.Product with _root_.scala.Serializable[0m
-[0m[[0m[31merror[0m] [0m[0m               ^[0m
-[0m[[0m[31merror[0m] [0m[0m/home/knoldus/order/app/com/nashtech/order/v1/NashtechOrderV1Client.scala:386:10: Authorization is already defined as object Authorization[0m
-[0m[[0m[31merror[0m] [0m[0m  object Authorization {[0m
-[0m[[0m[31merror[0m] [0m[0m         ^[0m
-[0m[[0m[31merror[0m] [0m[0m/home/knoldus/order/app/com/nashtech/order/v1/NashtechOrderV1Client.scala:392:11: Client is already defined as trait Client[0m
-[0m[[0m[31merror[0m] [0m[0m    trait Client {[0m
-[0m[[0m[31merror[0m] [0m[0m          ^[0m
-[0m[[0m[31merror[0m] [0m[0m/home/knoldus/order/app/com/nashtech/order/v1/NashtechOrderV1Client.scala:399:9: Orders is already defined as trait Orders[0m
-[0m[[0m[31merror[0m] [0m[0m  trait Orders {[0m
-[0m[[0m[31merror[0m] [0m[0m        ^[0m
-[0m[[0m[31merror[0m] [0m[0m/home/knoldus/order/app/com/nashtech/order/v1/NashtechOrderV1Client.scala:427:22: UnitResponse is already defined as case class UnitResponse[0m
-[0m[[0m[31merror[0m] [0m[0m    final case class UnitResponse(status: Int) extends Exception(s"HTTP $status")[0m
-[0m[[0m[31merror[0m] [0m[0m                     ^[0m
-[0m[[0m[31merror[0m] [0m[0m/home/knoldus/order/app/com/nashtech/order/v1/NashtechOrderV1Client.scala:429:22: FailedRequest is already defined as case class FailedRequest[0m
-[0m[[0m[31merror[0m] [0m[0m    final case class FailedRequest(responseCode: Int, message: String, requestUri: Option[_root_.java.net.URI] = None) extends _root_.java.lang.Exception(s"HTTP $responseCode: $message")[0m
-[0m[[0m[31merror[0m] [0m[0m                     ^[0m
-[0m[[0m[31merror[0m] [0m[0m11 errors found[0m
+[0m[[0m[31merror[0m] [0m[0m/home/knoldus/order/app/com/nashtech/database/OrderDaoImpl.scala:4:8: object Ordersb is not a member of package com.nashtech.order.v1.models[0m
+[0m[[0m[31merror[0m] [0m[0mdid you mean Order?[0m
+[0m[[0m[31merror[0m] [0m[0mimport com.nashtech.order.v1.models.{Order, Ordersb}[0m
+[0m[[0m[31merror[0m] [0m[0m       ^[0m
+[0m[[0m[31merror[0m] [0m[0m/home/knoldus/order/app/com/nashtech/database/DAO.scala:3:8: object Ordersb is not a member of package com.nashtech.order.v1.models[0m
+[0m[[0m[31merror[0m] [0m[0mdid you mean Order?[0m
+[0m[[0m[31merror[0m] [0m[0mimport com.nashtech.order.v1.models.{Order, Ordersb}[0m
+[0m[[0m[31merror[0m] [0m[0m       ^[0m
+[0m[[0m[31merror[0m] [0m[0mtwo errors found[0m

@@ -17,15 +17,15 @@ package com.nashtech.controllers {
 
   
     // @LINE:5
-    def index(): Call = {
-      
-      Call("GET", _prefix)
-    }
-  
-    // @LINE:6
     def getByNumber(merchant_id:String, number:String): Call = {
       
       Call("GET", _prefix + { _defaultPrefix } + play.core.routing.dynamicString(implicitly[play.api.mvc.PathBindable[String]].unbind("merchant_id", merchant_id)) + "/orders/" + play.core.routing.dynamicString(implicitly[play.api.mvc.PathBindable[String]].unbind("number", number)))
+    }
+  
+    // @LINE:6
+    def post(merchant_id:String): Call = {
+      
+      Call("POST", _prefix + { _defaultPrefix } + play.core.routing.dynamicString(implicitly[play.api.mvc.PathBindable[String]].unbind("merchant_id", merchant_id)) + "/orders")
     }
   
   }
