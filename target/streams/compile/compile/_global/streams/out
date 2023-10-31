@@ -1,9 +1,0 @@
-[0m[[0m[31merror[0m] [0m[0m/home/knoldus/order/app/com/nashtech/database/OrderDaoImpl.scala:4:8: object Ordersb is not a member of package com.nashtech.order.v1.models[0m
-[0m[[0m[31merror[0m] [0m[0mdid you mean Order?[0m
-[0m[[0m[31merror[0m] [0m[0mimport com.nashtech.order.v1.models.{Order, Ordersb}[0m
-[0m[[0m[31merror[0m] [0m[0m       ^[0m
-[0m[[0m[31merror[0m] [0m[0m/home/knoldus/order/app/com/nashtech/database/DAO.scala:3:8: object Ordersb is not a member of package com.nashtech.order.v1.models[0m
-[0m[[0m[31merror[0m] [0m[0mdid you mean Order?[0m
-[0m[[0m[31merror[0m] [0m[0mimport com.nashtech.order.v1.models.{Order, Ordersb}[0m
-[0m[[0m[31merror[0m] [0m[0m       ^[0m
-[0m[[0m[31merror[0m] [0m[0mtwo errors found[0m

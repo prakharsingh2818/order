@@ -28,10 +28,14 @@ package com.nashtech.order.v1.models {
 package com.nashtech.order.v1.models {
 
   package object json {
-
-    import com.nashtech.order.v1.models.json._
+    import play.api.libs.json.__
+    import play.api.libs.json.JsString
+    import play.api.libs.json.Writes
     import play.api.libs.functional.syntax._
-    import play.api.libs.json.{JsString, Writes, __}
+    import com.nashtech.order.v1.models.json._
+    import io.apibuilder.common.v0.models.json._
+    import io.apibuilder.generator.v0.models.json._
+    import io.apibuilder.spec.v0.models.json._
 
     private[v1] implicit val jsonReadsUUID: play.api.libs.json.Reads[_root_.java.util.UUID] = __.read[String].map { str =>
       _root_.java.util.UUID.fromString(str)
@@ -134,11 +138,9 @@ package com.nashtech.order.v1 {
 
     object Core {
       implicit def pathBindableDateTimeIso8601(implicit stringBinder: QueryStringBindable[String]): PathBindable[_root_.org.joda.time.DateTime] = ApibuilderPathBindable(ApibuilderTypes.dateTimeIso8601)
-
       implicit def queryStringBindableDateTimeIso8601(implicit stringBinder: QueryStringBindable[String]): QueryStringBindable[_root_.org.joda.time.DateTime] = ApibuilderQueryStringBindable(ApibuilderTypes.dateTimeIso8601)
 
       implicit def pathBindableDateIso8601(implicit stringBinder: QueryStringBindable[String]): PathBindable[_root_.org.joda.time.LocalDate] = ApibuilderPathBindable(ApibuilderTypes.dateIso8601)
-
       implicit def queryStringBindableDateIso8601(implicit stringBinder: QueryStringBindable[String]): QueryStringBindable[_root_.org.joda.time.LocalDate] = ApibuilderQueryStringBindable(ApibuilderTypes.dateIso8601)
     }
 
@@ -164,17 +166,13 @@ package com.nashtech.order.v1 {
     object ApibuilderTypes {
       val dateTimeIso8601: ApibuilderTypeConverter[_root_.org.joda.time.DateTime] = new ApibuilderTypeConverter[_root_.org.joda.time.DateTime] {
         override def convert(value: String): _root_.org.joda.time.DateTime = _root_.org.joda.time.format.ISODateTimeFormat.dateTimeParser.parseDateTime(value)
-
         override def convert(value: _root_.org.joda.time.DateTime): String = _root_.org.joda.time.format.ISODateTimeFormat.dateTime.print(value)
-
         override def example: _root_.org.joda.time.DateTime = _root_.org.joda.time.DateTime.now
       }
 
       val dateIso8601: ApibuilderTypeConverter[_root_.org.joda.time.LocalDate] = new ApibuilderTypeConverter[_root_.org.joda.time.LocalDate] {
         override def convert(value: String): _root_.org.joda.time.LocalDate = _root_.org.joda.time.format.ISODateTimeFormat.dateTimeParser.parseLocalDate(value)
-
         override def convert(value: _root_.org.joda.time.LocalDate): String = _root_.org.joda.time.format.ISODateTimeFormat.date.print(value)
-
         override def example: _root_.org.joda.time.LocalDate = _root_.org.joda.time.LocalDate.now
       }
     }
@@ -246,8 +244,10 @@ package com.nashtech.order.v1 {
                 auth: scala.Option[com.nashtech.order.v1.Authorization] = None,
                 defaultHeaders: Seq[(String, String)] = Nil
               ) extends interfaces.Client {
-
     import com.nashtech.order.v1.models.json._
+    import io.apibuilder.common.v0.models.json._
+    import io.apibuilder.generator.v0.models.json._
+    import io.apibuilder.spec.v0.models.json._
 
     private[this] val logger = play.api.Logger("com.nashtech.order.v1.Client")
 
@@ -278,19 +278,6 @@ package com.nashtech.order.v1 {
 
         _executeRequest("POST", s"/${play.utils.UriEncoding.encodePathSegment(merchantId, "UTF-8")}/orders", body = Some(payload), requestHeaders = requestHeaders).map {
           case r if r.status == 200 => _root_.com.nashtech.order.v1.Client.parseJson("com.nashtech.order.v1.models.OrderForm", r, _.validate[com.nashtech.order.v1.models.OrderForm])
-          case r if r.status == 201 => _root_.com.nashtech.order.v1.Client.parseJson("com.nashtech.order.v1.models.OrderForm", r, _.validate[com.nashtech.order.v1.models.OrderForm])
-          case r if r.status == 404 => throw com.nashtech.order.v1.errors.UnitResponse(r.status)
-          case r if r.status == 422 => throw com.nashtech.order.v1.errors.ErrorResponse(r)
-          case r => throw com.nashtech.order.v1.errors.FailedRequest(r.status, s"Unsupported response code[${r.status}]. Expected: 200, 201, 404, 422")
-        }
-      }
-
-      override def delete(
-                           merchantId: String,
-                           requestHeaders: Seq[(String, String)] = Nil
-                         )(implicit ec: scala.concurrent.ExecutionContext): scala.concurrent.Future[Unit] = {
-        _executeRequest("DELETE", s"/${play.utils.UriEncoding.encodePathSegment(merchantId, "UTF-8")}/orders", requestHeaders = requestHeaders).map {
-          case r if r.status == 200 => ()
           case r if r.status == 401 => throw com.nashtech.order.v1.errors.UnitResponse(r.status)
           case r if r.status == 404 => throw com.nashtech.order.v1.errors.UnitResponse(r.status)
           case r if r.status == 422 => throw com.nashtech.order.v1.errors.ErrorResponse(r)
@@ -307,10 +294,23 @@ package com.nashtech.order.v1 {
 
         _executeRequest("PUT", s"/${play.utils.UriEncoding.encodePathSegment(merchantId, "UTF-8")}/orders", body = Some(payload), requestHeaders = requestHeaders).map {
           case r if r.status == 200 => _root_.com.nashtech.order.v1.Client.parseJson("com.nashtech.order.v1.models.Order", r, _.validate[com.nashtech.order.v1.models.Order])
-          case r if r.status == 201 => _root_.com.nashtech.order.v1.Client.parseJson("com.nashtech.order.v1.models.Order", r, _.validate[com.nashtech.order.v1.models.Order])
+          case r if r.status == 401 => throw com.nashtech.order.v1.errors.UnitResponse(r.status)
           case r if r.status == 404 => throw com.nashtech.order.v1.errors.UnitResponse(r.status)
           case r if r.status == 422 => throw com.nashtech.order.v1.errors.ErrorResponse(r)
-          case r => throw com.nashtech.order.v1.errors.FailedRequest(r.status, s"Unsupported response code[${r.status}]. Expected: 200, 201, 404, 422")
+          case r => throw com.nashtech.order.v1.errors.FailedRequest(r.status, s"Unsupported response code[${r.status}]. Expected: 200, 401, 404, 422")
+        }
+      }
+
+      override def delete(
+                           merchantId: String,
+                           requestHeaders: Seq[(String, String)] = Nil
+                         )(implicit ec: scala.concurrent.ExecutionContext): scala.concurrent.Future[Unit] = {
+        _executeRequest("DELETE", s"/${play.utils.UriEncoding.encodePathSegment(merchantId, "UTF-8")}/orders", requestHeaders = requestHeaders).map {
+          case r if r.status == 200 => ()
+          case r if r.status == 401 => throw com.nashtech.order.v1.errors.UnitResponse(r.status)
+          case r if r.status == 404 => throw com.nashtech.order.v1.errors.UnitResponse(r.status)
+          case r if r.status == 422 => throw com.nashtech.order.v1.errors.ErrorResponse(r)
+          case r => throw com.nashtech.order.v1.errors.FailedRequest(r.status, s"Unsupported response code[${r.status}]. Expected: 200, 401, 404, 422")
         }
       }
     }
@@ -321,7 +321,7 @@ package com.nashtech.order.v1 {
         "User-Agent" -> Constants.UserAgent,
         "X-Apidoc-Version" -> Constants.Version,
         "X-Apidoc-Version-Major" -> Constants.VersionMajor.toString
-      ).addHttpHeaders(defaultHeaders: _*)
+      ).addHttpHeaders(defaultHeaders : _*)
       auth.fold(holder) {
         case Authorization.Basic(username, password) => {
           holder.withAuth(username, password.getOrElse(""), play.api.libs.ws.WSAuthScheme.BASIC)
@@ -351,28 +351,28 @@ package com.nashtech.order.v1 {
                        ): scala.concurrent.Future[play.api.libs.ws.WSResponse] = {
       method.toUpperCase match {
         case "GET" => {
-          _logRequest("GET", _requestHolder(path).addHttpHeaders(requestHeaders: _*).addQueryStringParameters(queryParameters: _*)).get()
+          _logRequest("GET", _requestHolder(path).addHttpHeaders(requestHeaders:_*).addQueryStringParameters(queryParameters:_*)).get()
         }
         case "POST" => {
-          _logRequest("POST", _requestHolder(path).addHttpHeaders(_withJsonContentType(requestHeaders): _*).addQueryStringParameters(queryParameters: _*)).post(body.getOrElse(play.api.libs.json.Json.obj()))
+          _logRequest("POST", _requestHolder(path).addHttpHeaders(_withJsonContentType(requestHeaders):_*).addQueryStringParameters(queryParameters:_*)).post(body.getOrElse(play.api.libs.json.Json.obj()))
         }
         case "PUT" => {
-          _logRequest("PUT", _requestHolder(path).addHttpHeaders(_withJsonContentType(requestHeaders): _*).addQueryStringParameters(queryParameters: _*)).put(body.getOrElse(play.api.libs.json.Json.obj()))
+          _logRequest("PUT", _requestHolder(path).addHttpHeaders(_withJsonContentType(requestHeaders):_*).addQueryStringParameters(queryParameters:_*)).put(body.getOrElse(play.api.libs.json.Json.obj()))
         }
         case "PATCH" => {
-          _logRequest("PATCH", _requestHolder(path).addHttpHeaders(requestHeaders: _*).addQueryStringParameters(queryParameters: _*)).patch(body.getOrElse(play.api.libs.json.Json.obj()))
+          _logRequest("PATCH", _requestHolder(path).addHttpHeaders(requestHeaders:_*).addQueryStringParameters(queryParameters:_*)).patch(body.getOrElse(play.api.libs.json.Json.obj()))
         }
         case "DELETE" => {
-          _logRequest("DELETE", _requestHolder(path).addHttpHeaders(requestHeaders: _*).addQueryStringParameters(queryParameters: _*)).delete()
+          _logRequest("DELETE", _requestHolder(path).addHttpHeaders(requestHeaders:_*).addQueryStringParameters(queryParameters:_*)).delete()
         }
         case "HEAD" => {
-          _logRequest("HEAD", _requestHolder(path).addHttpHeaders(requestHeaders: _*).addQueryStringParameters(queryParameters: _*)).head()
+          _logRequest("HEAD", _requestHolder(path).addHttpHeaders(requestHeaders:_*).addQueryStringParameters(queryParameters:_*)).head()
         }
         case "OPTIONS" => {
-          _logRequest("OPTIONS", _requestHolder(path).addHttpHeaders(requestHeaders: _*).addQueryStringParameters(queryParameters: _*)).options()
+          _logRequest("OPTIONS", _requestHolder(path).addHttpHeaders(requestHeaders:_*).addQueryStringParameters(queryParameters:_*)).options()
         }
         case _ => {
-          _logRequest(method, _requestHolder(path).addHttpHeaders(requestHeaders: _*).addQueryStringParameters(queryParameters: _*))
+          _logRequest(method, _requestHolder(path).addHttpHeaders(requestHeaders:_*).addQueryStringParameters(queryParameters:_*))
           sys.error("Unsupported method[%s]".format(method))
         }
       }
@@ -383,9 +383,7 @@ package com.nashtech.order.v1 {
      * already contain a Content-Type header
      */
     def _withJsonContentType(headers: Seq[(String, String)]): Seq[(String, String)] = {
-      headers.find {
-        _._1.toUpperCase == "CONTENT-TYPE"
-      } match {
+      headers.find { _._1.toUpperCase == "CONTENT-TYPE" } match {
         case None => headers ++ Seq("Content-Type" -> "application/json; charset=UTF-8")
         case Some(_) => headers
       }
@@ -411,7 +409,6 @@ package com.nashtech.order.v1 {
   }
 
   sealed trait Authorization extends _root_.scala.Product with _root_.scala.Serializable
-
   object Authorization {
     final case class Basic(username: String, password: Option[String] = None) extends Authorization
   }
@@ -420,7 +417,6 @@ package com.nashtech.order.v1 {
 
     trait Client {
       def baseUrl: String
-
       def orders: com.nashtech.order.v1.Orders
     }
 
@@ -439,16 +435,16 @@ package com.nashtech.order.v1 {
               requestHeaders: Seq[(String, String)] = Nil
             )(implicit ec: scala.concurrent.ExecutionContext): scala.concurrent.Future[com.nashtech.order.v1.models.OrderForm]
 
-    def delete(
-                merchantId: String,
-                requestHeaders: Seq[(String, String)] = Nil
-              )(implicit ec: scala.concurrent.ExecutionContext): scala.concurrent.Future[Unit]
-
     def put(
              merchantId: String,
              orderForm: com.nashtech.order.v1.models.OrderForm,
              requestHeaders: Seq[(String, String)] = Nil
            )(implicit ec: scala.concurrent.ExecutionContext): scala.concurrent.Future[com.nashtech.order.v1.models.Order]
+
+    def delete(
+                merchantId: String,
+                requestHeaders: Seq[(String, String)] = Nil
+              )(implicit ec: scala.concurrent.ExecutionContext): scala.concurrent.Future[Unit]
   }
 
   package errors {

@@ -23,7 +23,6 @@ libraryDependencies ++= Seq(
   "ch.qos.logback" % "logback-classic" % "1.4.7",
   "joda-time" % "joda-time" % "2.12.5",
   "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.14.2",
-  "mysql" % "mysql-connector-java" % "8.0.33",
   "com.typesafe.play" %% "play" % "2.8.18"
 
 )
