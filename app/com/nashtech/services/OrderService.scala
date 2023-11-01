@@ -1,5 +1,6 @@
 package com.nashtech.services
 
+import akka.actor.ActorRef
 import com.google.inject.ImplementedBy
 import com.nashtech.database.OrdersDao
 import com.nashtech.order.v1.models.{Order, OrderForm}
@@ -9,6 +10,7 @@ import play.api.db.Database
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
+import javax.inject.{Inject, Named, Singleton}
 
 @ImplementedBy(classOf[OrderServiceImpl])
 trait OrderService {
@@ -26,14 +28,16 @@ trait OrderService {
 }
 
 @Singleton
-class OrderServiceImpl @Inject()(dbs: Database, dao: OrdersDao) extends OrderService {
+class OrderServiceImpl @Inject()(@Named("order-journal-actor") orderActor: ActorRef)(dbs: Database, dao: OrdersDao) extends OrderService {
   private val db: Map[String, Order] = Map(
     "1" -> Order(id = "1", number = "1", merchantId = "X", submittedAt = DateTime.now(), total = 302.5)
   )
 
   override def getByNumber(merchantId: String, number: String): Either[Seq[String], Order] = {
     db.get(number) match {
-      case Some(order) => Right(order)
+      case Some(order) =>
+        orderActor ! "Insert"
+        Right(order)
       case None => Left(Seq("Order Not Found"))
     }
   }
