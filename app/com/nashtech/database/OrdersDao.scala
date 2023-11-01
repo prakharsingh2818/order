@@ -21,6 +21,7 @@ class OrdersDao @Inject()(db: Database) {
     if (orderIsValid(orderform)) {
       val orderId = generateOrderId()
       val orderNumber = generateOrderNumber()
+      val orderSubmittedAt = DateTime.now().toString()
       db.withConnection { implicit connection =>
         val insertQuery = SQL(
           """
@@ -30,7 +31,7 @@ class OrdersDao @Inject()(db: Database) {
           "id" -> orderId,
           "number" -> orderNumber,
           "merchantId" -> orderform.merchantId,
-          "submittedAt" -> DateTime.now(),
+          "submittedAt" -> orderSubmittedAt,
           "total" -> orderform.total
         )
         insertQuery.executeInsert()

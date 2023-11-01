@@ -8,8 +8,8 @@
 
 
 
-.idea
-.bsp
-target
+/.idea
+/.bsp
+target/
 
 

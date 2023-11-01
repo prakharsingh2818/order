@@ -29,13 +29,6 @@ package com.nashtech.order.v1.models {
 
   package object json {
     import play.api.libs.json.__
-    import play.api.libs.json.JsString
-    import play.api.libs.json.Writes
-    import play.api.libs.functional.syntax._
-    import com.nashtech.order.v1.models.json._
-    import io.apibuilder.common.v0.models.json._
-    import io.apibuilder.generator.v0.models.json._
-    import io.apibuilder.spec.v0.models.json._
 
     private[v1] implicit val jsonReadsUUID: play.api.libs.json.Reads[_root_.java.util.UUID] = __.read[String].map { str =>
       _root_.java.util.UUID.fromString(str)
@@ -245,9 +238,6 @@ package com.nashtech.order.v1 {
                 defaultHeaders: Seq[(String, String)] = Nil
               ) extends interfaces.Client {
     import com.nashtech.order.v1.models.json._
-    import io.apibuilder.common.v0.models.json._
-    import io.apibuilder.generator.v0.models.json._
-    import io.apibuilder.spec.v0.models.json._
 
     private[this] val logger = play.api.Logger("com.nashtech.order.v1.Client")
 
@@ -262,6 +252,19 @@ package com.nashtech.order.v1 {
                                 requestHeaders: Seq[(String, String)] = Nil
                               )(implicit ec: scala.concurrent.ExecutionContext): scala.concurrent.Future[com.nashtech.order.v1.models.Order] = {
         _executeRequest("GET", s"/${play.utils.UriEncoding.encodePathSegment(merchantId, "UTF-8")}/orders/${play.utils.UriEncoding.encodePathSegment(number, "UTF-8")}", requestHeaders = requestHeaders).map {
+          case r if r.status == 200 => _root_.com.nashtech.order.v1.Client.parseJson("com.nashtech.order.v1.models.Order", r, _.validate[com.nashtech.order.v1.models.Order])
+          case r if r.status == 401 => throw com.nashtech.order.v1.errors.UnitResponse(r.status)
+          case r if r.status == 404 => throw com.nashtech.order.v1.errors.UnitResponse(r.status)
+          case r => throw com.nashtech.order.v1.errors.FailedRequest(r.status, s"Unsupported response code[${r.status}]. Expected: 200, 401, 404")
+        }
+      }
+
+      override def getByAll(
+                             merchantId: String,
+                             all: String,
+                             requestHeaders: Seq[(String, String)] = Nil
+                           )(implicit ec: scala.concurrent.ExecutionContext): scala.concurrent.Future[com.nashtech.order.v1.models.Order] = {
+        _executeRequest("GET", s"/${play.utils.UriEncoding.encodePathSegment(merchantId, "UTF-8")}/orders/${play.utils.UriEncoding.encodePathSegment(all, "UTF-8")}", requestHeaders = requestHeaders).map {
           case r if r.status == 200 => _root_.com.nashtech.order.v1.Client.parseJson("com.nashtech.order.v1.models.Order", r, _.validate[com.nashtech.order.v1.models.Order])
           case r if r.status == 401 => throw com.nashtech.order.v1.errors.UnitResponse(r.status)
           case r if r.status == 404 => throw com.nashtech.order.v1.errors.UnitResponse(r.status)
@@ -428,6 +431,12 @@ package com.nashtech.order.v1 {
                      number: String,
                      requestHeaders: Seq[(String, String)] = Nil
                    )(implicit ec: scala.concurrent.ExecutionContext): scala.concurrent.Future[com.nashtech.order.v1.models.Order]
+
+    def getByAll(
+                  merchantId: String,
+                  all: String,
+                  requestHeaders: Seq[(String, String)] = Nil
+                )(implicit ec: scala.concurrent.ExecutionContext): scala.concurrent.Future[com.nashtech.order.v1.models.Order]
 
     def post(
               merchantId: String,
