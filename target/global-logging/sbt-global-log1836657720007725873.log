@@ -1,6 +1,0 @@
-[0m[[0m[0mdebug[0m] [0m[0m> Exec(compile, Some(f151922f-b3ed-42c7-b5f4-f2f06639ebe8), Some(CommandSource(console0)))[0m
-[0m[[0m[0mdebug[0m] [0m[0mEvaluating tasks: Compile / compile[0m
-[0m[[0m[0mdebug[0m] [0m[0mRunning task... Cancel: Signal, check cycles: false, forcegc: true[0m
-[0m[[0m[0minfo[0m] [0m[0mcompiling 1 Scala source to /home/knoldus/Documents/old-data/knoldus-projects/DelveryManagementSystem/order/target/scala-2.13/classes ...[0m
-[0m[[0m[32msuccess[0m] [0m[0mTotal time: 6 s, completed 28-Sep-2023, 3:43:30 pm[0m
-[0m[[0m[0mdebug[0m] [0m[0m> Exec(shell, None, None)[0m
