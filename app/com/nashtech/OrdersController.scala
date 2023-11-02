@@ -3,7 +3,7 @@
  * Service version: 1.0.1
  * apibuilder app.apibuilder.io/nashtech/order/latest/play_2_6_controllers
  */
-package com.nashtech
+package com.nashtech.order.v1.controllers
 
 import com.nashtech.order.v1.models.json._
 
@@ -57,7 +57,7 @@ trait OrdersController extends play.api.mvc.BaseController {
 
   sealed trait Post extends Product with Serializable
   object Post {
-    final case class HTTP200(body: com.nashtech.order.v1.models.OrderForm) extends Post
+    final case class HTTP200(body: com.nashtech.order.v1.models.Order) extends Post
     case object HTTP401 extends Post
     case object HTTP404 extends Post
     final case class HTTP422(body: com.nashtech.order.v1.models.Error) extends Post

@@ -1,22 +1,20 @@
 package com.nashtech.controllers
 
-import com.nashtech.OrdersController
-import com.nashtech.order.v1.models.OrderForm
+import com.nashtech.order.v1.controllers.OrdersController
+import com.nashtech.order.v1.models.{Order, OrderForm}
 import play.api.mvc.{Action, AnyContent, ControllerComponents, Request}
 import com.nashtech.services.OrderService
-import play.api.mvc.{Action, AnyContent, ControllerComponents, Request}
 
-import javax.inject.{Inject, Singleton}
+import javax.inject.Inject
 import scala.concurrent.Future
 
 
-@Singleton
-class Orders @Inject() (
-              val controllerComponents: ControllerComponents,
-              service: OrderService
-            ) extends OrdersController {
+class Orders @Inject()(
+                        val controllerComponents: ControllerComponents,
+                        service: OrderService
+                      ) extends OrdersController {
   override def getByNumber(request: Request[AnyContent], merchantId: String, number: String): Future[GetByNumber] = {
-    println(service.getAllOrder(merchantId = "X"))
+    println(service.getAllOrder(merchantId))
     service.getByNumber(merchantId, number) match {
       case Left(_) => Future.successful(GetByNumber.HTTP404)
       case Right(order) => Future.successful(GetByNumber.HTTP200(order))
@@ -27,7 +25,7 @@ class Orders @Inject() (
     Ok("Hello World")
   }
 
-  override def getAll(request: Request[AnyContent],merchantId: String): Future[GetAll] = {
+  override def getAll(request: Request[AnyContent], merchantId: String): Future[GetAll] = {
     println("fdf")
     service.getAllOrder(merchantId) match {
       case Left(_) => Future.successful(GetAll.HTTP404)
@@ -36,10 +34,10 @@ class Orders @Inject() (
     }
   }
 
-  override def post(request: Request[OrderForm], merchantId: String ,body: OrderForm): Future[Post] = {
+  override def post(request: Request[OrderForm], merchantId: String, body: OrderForm): Future[Post] = {
     service.createOrder(body) match {
-      case Left(_)=>Future.successful(Post.HTTP404)
-      case Right(orderForm: OrderForm) => Future.successful(Post.HTTP200(orderForm))
+      case Left(_) => Future.successful(Post.HTTP404)
+      case Right(order: Order) => Future.successful(Post.HTTP200(order))
     }
   }
 

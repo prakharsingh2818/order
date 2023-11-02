@@ -5,18 +5,16 @@ import com.google.inject.ImplementedBy
 import com.nashtech.database.OrdersDao
 import com.nashtech.order.v1.models.{Order, OrderForm}
 import org.joda.time.DateTime
-import play.api.db.Database
 
-import javax.inject.{Inject, Singleton}
+import javax.inject.{Inject, Named, Singleton}
 import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
-import javax.inject.{Inject, Named, Singleton}
 
 @ImplementedBy(classOf[OrderServiceImpl])
 trait OrderService {
   def getByNumber(merchantId: String, number: String): Either[Seq[String], Order]
 
-  def createOrder(order: OrderForm): Either[String, OrderForm]
+  def createOrder(order: OrderForm): Either[String, Order]
 
   def getAllOrder(merchantId: String): Either[Seq[String], Seq[Order]]
 
@@ -28,7 +26,7 @@ trait OrderService {
 }
 
 @Singleton
-class OrderServiceImpl @Inject()(@Named("order-journal-actor") orderActor: ActorRef)(dbs: Database, dao: OrdersDao) extends OrderService {
+class OrderServiceImpl @Inject()(@Named("order-journal-actor") orderActor: ActorRef)(dao: OrdersDao) extends OrderService {
   private val db: Map[String, Order] = Map(
     "1" -> Order(id = "1", number = "1", merchantId = "X", submittedAt = DateTime.now(), total = 302.5)
   )
@@ -49,42 +47,15 @@ class OrderServiceImpl @Inject()(@Named("order-journal-actor") orderActor: Actor
     }
   }
 
-  override def createOrder(orderform: OrderForm): Either[String, OrderForm] = {
-    dao.createOrder(orderform) match {
-      case Left(exception) => Left(exception)
-      case Right(value) => Right(value)
+  override def createOrder(orderform: OrderForm): Either[String, Order] = {
+    Try(dao.createOrder(orderform)) match {
+      case Success(value) => Right(value)
+      case Failure(exception) => Left(exception.getMessage)
     }
 
   }
 
   override def updateOrder(orderId: String, updatedOrder: Order): Future[Either[String, String]] = {
-    //    if (orderIsValid(updatedOrder)) {
-    //      // Implement the logic to update the order in the database.
-    //      // You may use Anorm or your preferred database access method.
-    //      // Replace the following code with your actual update logic.
-    //      dbs.withConnection { implicit conn =>
-    //        val updateQuery = SQL(
-    //          """
-    //          UPDATE orders
-    //          SET number = {number}, total = {total}
-    //          WHERE id = {id}
-    //        """).on(
-    //          "id" -> orderId,
-    //          "number" -> updatedOrder.number,
-    //          "total" -> updatedOrder.total
-    //        )
-    //
-    //        val updatedRows = updateQuery.executeUpdate()
-    //
-    //        if (updatedRows > 0) {
-    //          Future.successful(Right("Order updated successfully"))
-    //        } else {
-    //          Future.successful(Left("Order not found"))
-    //        }
-    //      }
-    //    } else {
-    //      Future.successful(Left("Invalid order"))
-    //    }
     ???
   }
 

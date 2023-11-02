@@ -22,8 +22,7 @@ libraryDependencies ++= Seq(
   "org.slf4j" % "slf4j-api" % "2.0.6",
   "ch.qos.logback" % "logback-classic" % "1.4.7",
   "joda-time" % "joda-time" % "2.12.5",
-  "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.14.2",
-  "com.typesafe.play" %% "play" % "2.8.18"
+  "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.14.2"
 
 )
 

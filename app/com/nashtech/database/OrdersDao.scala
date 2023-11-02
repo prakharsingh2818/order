@@ -1,66 +1,39 @@
 package com.nashtech.database
 
-import anorm.{RowParser, SQL, SqlParser, SqlQuery,~}
+import anorm.{RowParser, SQL, SqlParser, ~}
 import com.nashtech.order.v1.models.{Order, OrderForm}
 import org.joda.time.DateTime
 import play.api.db.Database
-import com.nashtech.order.v1.anorm.parsers.Order.parser
+
 import javax.inject.Inject
 
 class OrdersDao @Inject()(db: Database) {
 
   def getAllOrder(merchantId: String): Seq[Order] = {
     db.withConnection { implicit connection =>
-      val query: SqlQuery = SQL((s"select id, number, merchant_id, submitted_at, total from Orders where merchantId = $merchantId"))
-      val orders: List[Order] = query.as(OrderParser().*)
-      orders
+      SQL(BaseQuery.selectQuery(merchantId)).as(OrderParser().*)
     }
   }
 
-  def createOrder(orderform: OrderForm): Either[String, OrderForm] = {
-    if (orderIsValid(orderform)) {
-      val orderId = generateOrderId()
-      val orderNumber = generateOrderNumber()
-      val orderSubmittedAt = DateTime.now().toString()
-      db.withConnection { implicit connection =>
-        val insertQuery = SQL(
-          """
-            |INSERT INTO orders(id, number, merchant_id, submitted_at, total)
-            |VALUES({id}, {number}, {merchantId}, {submittedAt}, {total})
-        """).on(
-          "id" -> orderId,
-          "number" -> orderNumber,
-          "merchantId" -> orderform.merchantId,
-          "submittedAt" -> orderSubmittedAt,
-          "total" -> orderform.total
-        )
-        insertQuery.executeInsert()
-      }
-      Right(OrderForm(orderform.merchantId, orderform.total))
-    } else {
-      Left("Invalid Order")
-    }
-  }
-
-  def generateOrderId(): String = {
-    java.util.UUID.randomUUID().toString
-  }
-
-  def generateOrderNumber(): String = {
-    java.util.UUID.randomUUID().toString
-  }
-
-  def orderIsValid(order: OrderForm): Boolean = {
-    order.total > 0
-  }
-
-  def deleteById(merchantId: String): Order = {
+  def createOrder(orderform: OrderForm): Order = {
     db.withConnection { implicit connection =>
-      val query: SqlQuery = SQL((s"Delete from orders where merchant_id = $merchantId returning *"))
-      query.as(parser().single)
+      SQL(BaseQuery.insertQuery(orderform)).as(OrderParser().single)
     }
   }
 
+  def deleteById(id: String): Order = {
+    db.withConnection { implicit connection =>
+      SQL(BaseQuery.deleteQuery(id)).as(OrderParser().single)
+    }
+  }
+
+  private def generateOrderId(): String = {
+    java.util.UUID.randomUUID().toString
+  }
+
+  private def generateOrderNumber(): String = {
+    java.util.UUID.randomUUID().toString
+  }
 
   private def OrderParser(): RowParser[Order] = {
     SqlParser.str("id") ~
@@ -73,6 +46,57 @@ class OrdersDao @Inject()(db: Database) {
         Order(
           id, number, merchantId, submittedAt, total
         )
+    }
+  }
+
+  object BaseQuery {
+    def selectQuery(merchantId: String): String = {
+      s"SELECT * FROM Orders where merchant_id = $merchantId;"
+    }
+
+    def insertQuery(orderForm: OrderForm): String = {
+      val id = generateOrderId()
+      val orderNumber = generateOrderNumber()
+      val query =
+        s"""
+           |INSERT INTO Orders
+           |id,
+           |number,
+           |merchant_id,
+           |submitted_at,
+           |total
+           |)
+           |VALUES
+           |(
+           |$id
+           |$orderNumber
+           |${orderForm.merchantId}
+           |${DateTime.now()}
+           |${orderForm.total}
+           |)
+           |""".stripMargin
+      query
+    }
+
+    def deleteQuery(id: String): String = {
+      val query =
+        s"""
+           |DELETE FROM Orders
+           |WHERE id = $id
+           |RETURNING *;
+           |""".stripMargin
+      query
+    }
+
+    def updateQuery(orderForm: OrderForm, id: String): String = {
+      val query =
+        s"""
+           |UPDATE Orders
+           |SET merchant_id = ${orderForm.merchantId},
+           |total = ${orderForm.total}
+           |WHERE id = $id;
+           |""".stripMargin
+      query
     }
   }
 
