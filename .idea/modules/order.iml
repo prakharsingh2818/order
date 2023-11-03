@@ -18,13 +18,14 @@
     <orderEntry type="library" name="sbt: ch.qos.logback:logback-core:1.4.7:jar" level="project" />
     <orderEntry type="library" name="sbt: com.amazonaws:amazon-kinesis-client:1.14.10:jar" level="project" />
     <orderEntry type="library" name="sbt: com.amazonaws:aws-java-sdk-cloudwatch:1.12.406:jar" level="project" />
-    <orderEntry type="library" name="sbt: com.amazonaws:aws-java-sdk-core:1.12.406:jar" level="project" />
+    <orderEntry type="library" name="sbt: com.amazonaws:aws-java-sdk-core:1.12.472:jar" level="project" />
     <orderEntry type="library" name="sbt: com.amazonaws:aws-java-sdk-dynamodb:1.12.406:jar" level="project" />
     <orderEntry type="library" name="sbt: com.amazonaws:aws-java-sdk-kinesis:1.12.406:jar" level="project" />
-    <orderEntry type="library" name="sbt: com.amazonaws:aws-java-sdk-kms:1.12.406:jar" level="project" />
-    <orderEntry type="library" name="sbt: com.amazonaws:aws-java-sdk-s3:1.12.406:jar" level="project" />
+    <orderEntry type="library" name="sbt: com.amazonaws:aws-java-sdk-kms:1.12.470:jar" level="project" />
+    <orderEntry type="library" name="sbt: com.amazonaws:aws-java-sdk-s3:1.12.470:jar" level="project" />
+    <orderEntry type="library" name="sbt: com.amazonaws:aws-java-sdk-sqs:1.12.472:jar" level="project" />
     <orderEntry type="library" name="sbt: com.amazonaws:aws-java-sdk-sts:1.12.151:jar" level="project" />
-    <orderEntry type="library" name="sbt: com.amazonaws:jmespath-java:1.12.406:jar" level="project" />
+    <orderEntry type="library" name="sbt: com.amazonaws:jmespath-java:1.12.472:jar" level="project" />
     <orderEntry type="library" name="sbt: com.charleskorn.kaml:kaml:0.20.0:jar" level="project" />
     <orderEntry type="library" name="sbt: com.damnhandy:handy-uri-templates:2.1.8:jar" level="project" />
     <orderEntry type="library" name="sbt: com.fasterxml.jackson.core:jackson-annotations:2.14.3:jar" level="project" />
@@ -49,6 +50,7 @@
     <orderEntry type="library" name="sbt: com.google.jimfs:jimfs:1.1:jar" level="project" />
     <orderEntry type="library" name="sbt: com.google.protobuf:protobuf-java:3.21.12:jar" level="project" />
     <orderEntry type="library" name="sbt: com.google.re2j:re2j:1.6:jar" level="project" />
+    <orderEntry type="library" name="sbt: com.googlecode.usc:jdbcdslog:1.0.6.2:jar" level="project" />
     <orderEntry type="library" name="sbt: com.kjetland:mbknor-jackson-jsonschema_2.12:1.0.39:jar" level="project" />
     <orderEntry type="library" scope="TEST" name="sbt: com.novocode:junit-interface:0.11:jar" level="project" />
     <orderEntry type="library" scope="TEST" name="sbt: com.squareup.okhttp3:okhttp:3.11.0:jar" level="project" />
@@ -81,6 +83,8 @@
     <orderEntry type="library" name="sbt: com.typesafe.play:play-exceptions:2.8.20:jar" level="project" />
     <orderEntry type="library" name="sbt: com.typesafe.play:play-functional_2.13:2.10.1:jar" level="project" />
     <orderEntry type="library" name="sbt: com.typesafe.play:play-guice_2.13:2.8.20:jar" level="project" />
+    <orderEntry type="library" name="sbt: com.typesafe.play:play-jdbc-api_2.13:2.8.20:jar" level="project" />
+    <orderEntry type="library" name="sbt: com.typesafe.play:play-jdbc_2.13:2.8.20:jar" level="project" />
     <orderEntry type="library" name="sbt: com.typesafe.play:play-json-joda_2.13:2.10.1:jar" level="project" />
     <orderEntry type="library" name="sbt: com.typesafe.play:play-json_2.13:2.10.1:jar" level="project" />
     <orderEntry type="library" name="sbt: com.typesafe.play:play-logback_2.13:2.8.20:jar" level="project" />
@@ -98,6 +102,7 @@
     <orderEntry type="library" name="sbt: com.typesafe.scala-logging:scala-logging_2.13:3.9.5:jar" level="project" />
     <orderEntry type="library" name="sbt: com.typesafe:config:1.4.2:jar" level="project" />
     <orderEntry type="library" name="sbt: com.typesafe:ssl-config-core_2.13:0.4.3:jar" level="project" />
+    <orderEntry type="library" name="sbt: com.zaxxer:HikariCP:3.4.5:jar" level="project" />
     <orderEntry type="library" name="sbt: commons-codec:commons-codec:1.15:jar" level="project" />
     <orderEntry type="library" name="sbt: commons-collections:commons-collections:3.2.2:jar" level="project" />
     <orderEntry type="library" name="sbt: commons-digester:commons-digester:2.1:jar" level="project" />
@@ -223,6 +228,7 @@
     <orderEntry type="library" name="sbt: software.amazon.glue:schema-registry-serde:1.1.14:jar" level="project" />
     <orderEntry type="library" name="sbt: software.amazon.ion:ion-java:1.0.2:jar" level="project" />
     <orderEntry type="library" name="sbt: software.amazon.kinesis:amazon-kinesis-client:2.4.8:jar" level="project" />
+    <orderEntry type="library" name="sbt: tyrex:tyrex:1.0.1:jar" level="project" />
     <orderEntry type="library" scope="TEST" name="sbt: xalan:serializer:2.7.2:jar" level="project" />
     <orderEntry type="library" scope="TEST" name="sbt: xalan:xalan:2.7.2:jar" level="project" />
     <orderEntry type="library" scope="TEST" name="sbt: xerces:xercesImpl:2.12.0:jar" level="project" />

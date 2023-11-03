@@ -17,7 +17,8 @@ extends DBPollActor(table = "orders") {
     // super.preStart()
     println("[OrderJournalActor] Inside preStart")
     log.info("[OrderJournalActor] Inside preStart")
-    self ! "Insert"
+    // self ! "Insert"
+    startPolling()
   }
 
   def schedule() = {

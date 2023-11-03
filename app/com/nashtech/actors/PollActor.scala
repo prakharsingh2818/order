@@ -10,6 +10,7 @@ import scala.util.Try
 sealed trait PollActorMessage
 object PollActorMessage {
   final case object Poll extends PollActorMessage
+  final case object Start extends PollActorMessage
 }
 
 @Singleton
@@ -31,6 +32,8 @@ trait PollActor extends Actor with ActorLogging {
       log.info("Inside receive method")
       println("Inside receive method")
       safeProcessMessage()
+
+    case Start => // no-op
   }
 
   private def safeProcessMessage(): Unit = {
