@@ -44,8 +44,10 @@ class Orders @Inject()(
   override def put(request: Request[OrderForm], merchantId: String, body: OrderForm): Future[Put] = ???
 
   override def delete(request: Request[AnyContent], merchantId: String): Future[Delete] = {
-    service.deleteById(merchantId) match {
-      case Left(_) => Future.successful(Delete.HTTP404)
+    service.deleteAllByMerchantId(merchantId) match {
+      case Left(ex) =>
+        println(s"11111111111111111111$ex")
+        Future.successful(Delete.HTTP404)
       case Right(_) => Future.successful(Delete.HTTP200)
     }
   }

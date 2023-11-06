@@ -15,15 +15,16 @@ class OrdersDao @Inject()(db: Database) {
     }
   }
 
-  def createOrder(orderform: OrderForm): Order = {
+  def createOrder(form: OrderForm): Order = {
     db.withConnection { implicit connection =>
-      SQL(BaseQuery.insertQuery(orderform)).as(OrderParser().single)
+      SQL(BaseQuery.insertQuery(form)).as(OrderParser().single)
     }
   }
 
-  def deleteById(id: String): Order = {
+  def deleteAllByMerchantId(merchantId: String): Seq[Order] = {
+    println("[OrdersDao] - Inside deleteAllByMerchantId method")
     db.withConnection { implicit connection =>
-      SQL(BaseQuery.deleteQuery(id)).as(OrderParser().single)
+      SQL(BaseQuery.deleteQuery(merchantId)).as(OrderParser().*)
     }
   }
 
@@ -78,12 +79,12 @@ class OrdersDao @Inject()(db: Database) {
       query
     }
 
-    def deleteQuery(id: String): String = {
+    def deleteQuery(merchantId: String): String = {
       val query =
         s"""
-           |DELETE FROM Orders
-           |WHERE id = $id
-           |RETURNING *;
+           |DELETE FROM orders
+           |WHERE merchant_id = '$merchantId'
+           |RETURNING *
            |""".stripMargin
       query
     }

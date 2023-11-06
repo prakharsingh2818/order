@@ -20,7 +20,7 @@ trait OrderService {
 
   def updateOrder(orderId: String, updatedOrder: Order): Future[Either[String, String]]
 
-  def deleteById(merchantId: String): Either[String, Order]
+  def deleteAllByMerchantId(merchantId: String): Either[String, Seq[Order]]
 
   def deleteAll(): Future[String]
 }
@@ -34,7 +34,7 @@ class OrderServiceImpl @Inject()(@Named("order-journal-actor") orderActor: Actor
   override def getByNumber(merchantId: String, number: String): Either[Seq[String], Order] = {
     db.get(number) match {
       case Some(order) =>
-        orderActor ! "Insert"
+        // orderActor ! "Insert"
         Right(order)
       case None => Left(Seq("Order Not Found"))
     }
@@ -59,8 +59,8 @@ class OrderServiceImpl @Inject()(@Named("order-journal-actor") orderActor: Actor
     ???
   }
 
-  override def deleteById(merchantId: String): Either[String, Order] = {
-    Try(dao.deleteById(merchantId)) match {
+  override def deleteAllByMerchantId(merchantId: String): Either[String, Seq[Order]] = {
+    Try(dao.deleteAllByMerchantId(merchantId)) match {
       case Failure(exception) => Left(exception.getMessage)
       case Success(value) => Right(value)
     }
