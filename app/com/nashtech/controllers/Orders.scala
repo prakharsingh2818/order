@@ -2,8 +2,8 @@ package com.nashtech.controllers
 
 import com.nashtech.order.v1.controllers.OrdersController
 import com.nashtech.order.v1.models.{Order, OrderForm}
-import play.api.mvc.{Action, AnyContent, ControllerComponents, Request}
 import com.nashtech.services.OrderService
+import play.api.mvc.{Action, AnyContent, ControllerComponents, Request}
 
 import javax.inject.Inject
 import scala.concurrent.Future
@@ -14,7 +14,6 @@ class Orders @Inject()(
                         service: OrderService
                       ) extends OrdersController {
   override def getByNumber(request: Request[AnyContent], merchantId: String, number: String): Future[GetByNumber] = {
-    println(service.getAllOrder(merchantId))
     service.getByNumber(merchantId, number) match {
       case Left(_) => Future.successful(GetByNumber.HTTP404)
       case Right(order) => Future.successful(GetByNumber.HTTP200(order))
@@ -26,7 +25,6 @@ class Orders @Inject()(
   }
 
   override def getAll(request: Request[AnyContent], merchantId: String): Future[GetAll] = {
-    println("fdf")
     service.getAllOrder(merchantId) match {
       case Left(_) => Future.successful(GetAll.HTTP404)
       case Right(orders) => Future.successful(GetAll.HTTP200(orders))
@@ -41,12 +39,16 @@ class Orders @Inject()(
     }
   }
 
-  override def put(request: Request[OrderForm], merchantId: String, body: OrderForm): Future[Put] = ???
+  override def put(request: Request[OrderForm], merchantId: String, body: OrderForm): Future[Put] = {
+    service.updateOrder(merchantId, body) match {
+      case Left(_) => Future.successful(Put.HTTP404)
+      case Right(order: Order) => Future.successful(Put.HTTP200(order))
+    }
+  }
 
   override def delete(request: Request[AnyContent], merchantId: String): Future[Delete] = {
     service.deleteAllByMerchantId(merchantId) match {
-      case Left(ex) =>
-        println(s"11111111111111111111$ex")
+      case Left(_) =>
         Future.successful(Delete.HTTP404)
       case Right(_) => Future.successful(Delete.HTTP200)
     }

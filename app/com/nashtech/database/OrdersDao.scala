@@ -9,22 +9,34 @@ import javax.inject.Inject
 
 class OrdersDao @Inject()(db: Database) {
 
-  def getAllOrder(merchantId: String): Seq[Order] = {
+
+  def getByNumber(merchantId: String, number: String): Order = {
     db.withConnection { implicit connection =>
-      SQL(BaseQuery.selectQuery(merchantId)).as(OrderParser().*)
+      SQL(BaseQuery.selectQuery(merchantId, number)).as(OrderParser().single)
     }
   }
 
-  def createOrder(form: OrderForm): Order = {
+  def getAllOrder(merchantId: String): Seq[Order] = {
     db.withConnection { implicit connection =>
-      SQL(BaseQuery.insertQuery(form)).as(OrderParser().single)
+      SQL(BaseQuery.selectAllQuery(merchantId)).as(OrderParser().*)
+    }
+  }
+
+  def createOrder(orderForm: OrderForm): Order = {
+    db.withConnection { implicit connection =>
+      SQL(BaseQuery.insertQuery(orderForm)).as(OrderParser().single)
     }
   }
 
   def deleteAllByMerchantId(merchantId: String): Seq[Order] = {
-    println("[OrdersDao] - Inside deleteAllByMerchantId method")
     db.withConnection { implicit connection =>
       SQL(BaseQuery.deleteQuery(merchantId)).as(OrderParser().*)
+    }
+  }
+
+  def updateOrderById(merchantId: String, orderForm: OrderForm): Order = {
+    db.withConnection { implicit connection =>
+      SQL(BaseQuery.updateQuery(orderForm, merchantId)).as(OrderParser().single)
     }
   }
 
@@ -51,16 +63,44 @@ class OrdersDao @Inject()(db: Database) {
   }
 
   object BaseQuery {
-    def selectQuery(merchantId: String): String = {
-      s"SELECT * FROM Orders where merchant_id = $merchantId;"
+
+    def selectAllQuery(merchantId: String): String = {
+      val query =
+        s"""
+           |SELECT
+           |id,
+           |number,
+           |merchant_id,
+           |submitted_at,
+           |total
+           |FROM Orders
+           |WHERE merchant_id = $merchantId
+           |""".stripMargin
+      query
+    }
+
+    def selectQuery(merchantId: String, number: String): String = {
+      val query =
+        s"""
+           |SELECT
+           |id,
+           |number,
+           |merchant_id,
+           |submitted_at,
+           |total
+           |FROM Orders
+           |WHERE merchant_id = '$merchantId' AND number = '$number'
+           |""".stripMargin
+      query
     }
 
     def insertQuery(orderForm: OrderForm): String = {
-      val id = generateOrderId()
+      val orderId = generateOrderId()
       val orderNumber = generateOrderNumber()
       val query =
         s"""
            |INSERT INTO Orders
+           |(
            |id,
            |number,
            |merchant_id,
@@ -69,12 +109,13 @@ class OrdersDao @Inject()(db: Database) {
            |)
            |VALUES
            |(
-           |$id
-           |$orderNumber
-           |${orderForm.merchantId}
-           |${DateTime.now()}
+           |'$orderId',
+           |'$orderNumber',
+           |'${orderForm.merchantId}',
+           |'${DateTime.now()}',
            |${orderForm.total}
            |)
+           |RETURNING *
            |""".stripMargin
       query
     }
@@ -82,20 +123,21 @@ class OrdersDao @Inject()(db: Database) {
     def deleteQuery(merchantId: String): String = {
       val query =
         s"""
-           |DELETE FROM orders
+           |DELETE FROM Orders
            |WHERE merchant_id = '$merchantId'
            |RETURNING *
            |""".stripMargin
       query
     }
 
-    def updateQuery(orderForm: OrderForm, id: String): String = {
+    def updateQuery(orderForm: OrderForm, merchantId: String): String = {
       val query =
         s"""
            |UPDATE Orders
-           |SET merchant_id = ${orderForm.merchantId},
+           |SET merchant_id = '${orderForm.merchantId}',
            |total = ${orderForm.total}
-           |WHERE id = $id;
+           |WHERE merchant_id = '$merchantId'
+           |RETURNING *
            |""".stripMargin
       query
     }

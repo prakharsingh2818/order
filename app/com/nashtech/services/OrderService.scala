@@ -18,7 +18,7 @@ trait OrderService {
 
   def getAllOrder(merchantId: String): Either[Seq[String], Seq[Order]]
 
-  def updateOrder(orderId: String, updatedOrder: Order): Future[Either[String, String]]
+  def updateOrder(merchantId: String, updatedOrder: OrderForm): Either[String, Order]
 
   def deleteAllByMerchantId(merchantId: String): Either[String, Seq[Order]]
 
@@ -32,12 +32,17 @@ class OrderServiceImpl @Inject()(@Named("order-journal-actor") orderActor: Actor
   )
 
   override def getByNumber(merchantId: String, number: String): Either[Seq[String], Order] = {
-    db.get(number) match {
-      case Some(order) =>
-        // orderActor ! "Insert"
-        Right(order)
-      case None => Left(Seq("Order Not Found"))
+
+    Try(dao.getByNumber(merchantId, number)) match {
+      case Failure(exception) => Left(Seq(exception.getMessage))
+      case Success(value) => Right(value)
     }
+    //    dao.getByNumber(number) match {
+    //      case Some(order) =>
+    //        orderActor ! "Insert"
+    //        Right(order)
+    //      case None => Left(Seq("Order Not Found"))
+    //    }
   }
 
   override def getAllOrder(merchantId: String): Either[Seq[String], Seq[Order]] = {
@@ -55,11 +60,15 @@ class OrderServiceImpl @Inject()(@Named("order-journal-actor") orderActor: Actor
 
   }
 
-  override def updateOrder(orderId: String, updatedOrder: Order): Future[Either[String, String]] = {
-    ???
+  override def updateOrder(merchantId: String, updatedOrder: OrderForm): Either[String, Order] = {
+    Try(dao.updateOrderById(merchantId, updatedOrder)) match {
+      case Success(value) => Right(value)
+      case Failure(exception) => Left(exception.getMessage)
+    }
   }
 
   override def deleteAllByMerchantId(merchantId: String): Either[String, Seq[Order]] = {
+    println(dao.deleteAllByMerchantId(merchantId))
     Try(dao.deleteAllByMerchantId(merchantId)) match {
       case Failure(exception) => Left(exception.getMessage)
       case Success(value) => Right(value)
