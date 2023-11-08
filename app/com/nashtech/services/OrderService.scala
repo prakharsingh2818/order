@@ -26,7 +26,7 @@ trait OrderService {
 }
 
 @Singleton
-class OrderServiceImpl @Inject()(@Named("order-journal-actor") orderActor: ActorRef)(dao: OrdersDao) extends OrderService {
+class OrderServiceImpl @Inject()(@Named("order-journal-actor") orderActor: ActorRef, dao: OrdersDao) extends OrderService {
   private val db: Map[String, Order] = Map(
     "1" -> Order(id = "1", number = "1", merchantId = "X", submittedAt = DateTime.now(), total = 302.5)
   )
