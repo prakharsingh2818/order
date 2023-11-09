@@ -2,6 +2,7 @@ package com.nashtech.actors
 
 import akka.actor.ActorSystem
 import com.nashtech.actors.PollActorMessage.Poll
+import play.api.db.Database
 import play.api.libs.ws.WSClient
 import play.libs.ws.WSClient
 
@@ -10,7 +11,7 @@ import scala.concurrent.duration.{FiniteDuration, SECONDS}
 import scala.util.{Success, Try}
 
 @Singleton
-class OrderJournalActor @Inject()(system: ActorSystem)
+class OrderJournalActor @Inject()(system: ActorSystem, override val db: Database)
 extends DBPollActor(table = "orders") {
 
   override def preStart(): Unit = {
@@ -23,13 +24,17 @@ extends DBPollActor(table = "orders") {
   def schedule() = {
     system.scheduler.scheduleWithFixedDelay(FiniteDuration(5, SECONDS), delay, self, "Insert")(system.dispatcher)
   }
+
   override def process(record: ProcessQueueOrder): Try[Unit] = {
     record.operation match {
-      case "Insert" | "Update" => // TODO: Publish using kinesis
+      case "INSERT" | "UPDATE" => // TODO: Publish using kinesis
       Try {
         log.info("Inside OrderJournalActor")
+        println("OrderJournalActor running ====" + record)
       }
-      case "Delete" => Success(())
+      case "DELETE" =>
+        println("Inside DELETE operation")
+        Success(())
     }
   }
 }
