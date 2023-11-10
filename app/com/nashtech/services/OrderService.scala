@@ -32,7 +32,6 @@ class OrderServiceImpl @Inject()(@Named("order-journal-actor") orderActor: Actor
   )
 
   override def getByNumber(merchantId: String, number: String): Either[Seq[String], Order] = {
-
     Try(dao.getByNumber(merchantId, number)) match {
       case Failure(exception) => Left(Seq(exception.getMessage))
       case Success(value) => Right(value)
@@ -68,7 +67,6 @@ class OrderServiceImpl @Inject()(@Named("order-journal-actor") orderActor: Actor
   }
 
   override def deleteAllByMerchantId(merchantId: String): Either[String, Seq[Order]] = {
-    println(dao.deleteAllByMerchantId(merchantId))
     Try(dao.deleteAllByMerchantId(merchantId)) match {
       case Failure(exception) => Left(exception.getMessage)
       case Success(value) => Right(value)

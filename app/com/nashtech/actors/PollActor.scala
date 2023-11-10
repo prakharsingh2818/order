@@ -3,7 +3,7 @@ package com.nashtech.actors
 import akka.actor.{Actor, ActorLogging, ActorSystem}
 import akka.dispatch.MessageDispatcher
 
-import javax.inject.{Inject, Singleton}
+import javax.inject.Singleton
 import scala.concurrent.duration.{FiniteDuration, SECONDS}
 import scala.util.Try
 
@@ -20,12 +20,15 @@ trait PollActor extends Actor with ActorLogging {
   val pollContext: MessageDispatcher = system.dispatchers.lookup("poll-context")
 
   def initialDelay: FiniteDuration = FiniteDuration(10L, SECONDS)
+
   def delay: FiniteDuration = FiniteDuration(10, SECONDS)
 
   def processRecord(): Unit
+
   def startPolling() = {
     system.scheduler.scheduleWithFixedDelay(initialDelay, delay, self, Poll)(pollContext)
   }
+
   override def receive: Receive = {
     case Poll =>
       log.info("Inside receive method")

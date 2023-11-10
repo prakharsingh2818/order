@@ -17,12 +17,14 @@ class OrdersDao @Inject()(db: Database) {
   }
 
   def getAllOrder(merchantId: String): Seq[Order] = {
+    println("+++++++++++++++++++++++++++++++")
     db.withConnection { implicit connection =>
       SQL(BaseQuery.selectAllQuery(merchantId)).as(OrderParser().*)
     }
   }
 
   def createOrder(orderForm: OrderForm): Order = {
+    println(BaseQuery.insertQuery(orderForm))
     db.withConnection { implicit connection =>
       SQL(BaseQuery.insertQuery(orderForm)).as(OrderParser().single)
     }
@@ -95,6 +97,7 @@ class OrdersDao @Inject()(db: Database) {
     }
 
     def insertQuery(orderForm: OrderForm): String = {
+      println("*********************")
       val orderId = generateOrderId()
       val orderNumber = generateOrderNumber()
       val query =
