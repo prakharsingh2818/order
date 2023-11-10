@@ -1,6 +1,6 @@
 package com.nashtech.actors
 
-import anorm.{RowParser, SQL, Sql, SqlParser, ~}
+import anorm.{RowParser, SQL, SqlParser, ~}
 import org.joda.time.DateTime
 import play.api.db.Database
 
@@ -12,7 +12,7 @@ abstract class DBPollActor(schema: String = "public", table: String) extends Pol
 
   val processingTable = {
     val tempName = s"${table}_processing_queue"
-    if(schema.equalsIgnoreCase("public")) tempName
+    if (schema.equalsIgnoreCase("public")) tempName
     else s"${schema}.${tempName}"
   }
 
@@ -41,7 +41,7 @@ abstract class DBPollActor(schema: String = "public", table: String) extends Pol
   def safeProcessRecord(record: ProcessQueueOrder) = {
     Try {
       log.info("Inside safeProcessRecord method")
-      println("nside safeProcessRecord method")
+      println("Inside safeProcessRecord method")
       process(record)
     } match {
       case Success(_) =>
@@ -57,24 +57,23 @@ abstract class DBPollActor(schema: String = "public", table: String) extends Pol
   }
 
   private def deleteProcessingQueueRecord(id: Int) = {
-    // TODO: Integrate with Database
-    DeleteQuery(id)
+    db.withConnection { implicit connection =>
+      SQL(DeleteQuery(id)).executeUpdate()
+    }
   }
 
   private def insertJournalRecord(record: ProcessQueueOrder) = {
-    // TODO: Integrate with Database
-    //database.withConnection(c: Connection => SQL(InsertQuery(record)).executeInsert())
-    // SQL(InsertQuery(record)).executeInsert()
-
     db.withConnection { implicit connection =>
       SQL(InsertQuery(record)).executeInsert()
     }
   }
 
   private def setErrors(processingQueueId: Int, throwable: Throwable) = {
-    // TODO: Integrate with Database
-    // SQL(SetErrorsQuery(processingQueueId, throwable)).executeUpdate()
+    db.withConnection { implicit connection =>
+      SQL(SetErrorsQuery(processingQueueId, throwable)).executeUpdate()
+    }
   }
+
   private def getEarliestRecord(processingTable: String): ProcessQueueOrder = {
     db.withConnection { implicit connection =>
       SQL(BaseQuery).as(ProcessingQueueOrderParser().single)
@@ -83,10 +82,10 @@ abstract class DBPollActor(schema: String = "public", table: String) extends Pol
 
   private def BaseQuery =
     s"""
-      |select processing_queue_id, id, number, merchant_id, submitted_at, total, operation
-      |from ${processingTable}
-      |order by created_at asc limit 1
-      |""".stripMargin
+       |select processing_queue_id, id, number, merchant_id, submitted_at, created_at,updated_at, total, operation
+       |from ${processingTable}
+       |order by created_at asc limit 1
+       |""".stripMargin
 
   private def DeleteQuery(id: Int) =
     s"""
@@ -96,14 +95,15 @@ abstract class DBPollActor(schema: String = "public", table: String) extends Pol
   private def InsertQuery(record: ProcessQueueOrder) =
     s"""
        |insert into $journalTable (processing_queue_id, id, number, merchant_id, total, submitted_at, created_at, updated_at, operation)
-       |values ('${record.processingQueueId}', '${record.id}', '${record.number}', '${record.merchantId}', ${record.total}, '${record.submittedAt}' '${record.createdAt}', '${record.updatedAt}', '${record.operation}')
+       |values ('${record.processingQueueId}', '${record.id}', '${record.number}', '${record.merchantId}', ${record.total},'${record.submittedAt}', '${record.createdAt}', '${record.updatedAt}', '${record.operation}')
        |""".stripMargin
 
-  private def SetErrorsQuery(id: String, ex: Throwable) = {
+  private def SetErrorsQuery(id: Int, ex: Throwable) = {
     s"""
        |update $processingTable set error = ${ex.getMessage} where processing_queue_id = $id
        |""".stripMargin
   }
+
   private def ProcessingQueueOrderParser(): RowParser[ProcessQueueOrder] = {
     SqlParser.int("processing_queue_id") ~
       SqlParser.str("id") ~
