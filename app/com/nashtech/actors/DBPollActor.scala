@@ -51,7 +51,7 @@ abstract class DBPollActor(schema: String = "public", table: String) extends Pol
         insertJournalRecord(record)
       case Failure(ex) =>
         log.info("Discontinuing with safeProcessRecord method")
-        println("Discontinuing with safeProcessRecord method")
+        println("Discontinuing with safeProcessRecord method" + ex.getMessage)
         setErrors(record.processingQueueId, ex)
     }
   }
@@ -100,7 +100,7 @@ abstract class DBPollActor(schema: String = "public", table: String) extends Pol
 
   private def SetErrorsQuery(id: Int, ex: Throwable) = {
     s"""
-       |update $processingTable set error = ${ex.getMessage} where processing_queue_id = $id
+       |update $processingTable set error_message = '${ex.getMessage}' where processing_queue_id = $id
        |""".stripMargin
   }
 
