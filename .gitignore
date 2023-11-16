@@ -1,5 +1,5 @@
-.bsp/
-.idea/
+.bsp
+.idea   
 target/
 /app/volume/
 /app/volume/cache/machine.json

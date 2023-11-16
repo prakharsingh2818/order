@@ -10,9 +10,10 @@ import scala.concurrent.Future
 
 
 class Orders @Inject()(
-                        val controllerComponents: ControllerComponents,
-                        service: OrderService
-                      ) extends OrdersController {
+  val controllerComponents: ControllerComponents,
+  service: OrderService
+) extends OrdersController {
+
   override def getByNumber(request: Request[AnyContent], merchantId: String, number: String): Future[GetByNumber] = {
     service.getByNumber(merchantId, number) match {
       case Left(_) => Future.successful(GetByNumber.HTTP404)

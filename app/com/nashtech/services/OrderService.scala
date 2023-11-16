@@ -27,9 +27,6 @@ trait OrderService {
 
 @Singleton
 class OrderServiceImpl @Inject()(@Named("order-journal-actor") orderActor: ActorRef, dao: OrdersDao) extends OrderService {
-  private val db: Map[String, Order] = Map(
-    "1" -> Order(id = "1", number = "1", merchantId = "X", submittedAt = DateTime.now(), total = 302.5)
-  )
 
   override def getByNumber(merchantId: String, number: String): Either[Seq[String], Order] = {
 
@@ -37,12 +34,6 @@ class OrderServiceImpl @Inject()(@Named("order-journal-actor") orderActor: Actor
       case Failure(exception) => Left(Seq(exception.getMessage))
       case Success(value) => Right(value)
     }
-    //    dao.getByNumber(number) match {
-    //      case Some(order) =>
-    //        orderActor ! "Insert"
-    //        Right(order)
-    //      case None => Left(Seq("Order Not Found"))
-    //    }
   }
 
   override def getAllOrder(merchantId: String): Either[Seq[String], Seq[Order]] = {
