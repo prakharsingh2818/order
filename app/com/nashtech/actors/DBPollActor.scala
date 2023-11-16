@@ -10,13 +10,13 @@ abstract class DBPollActor(schema: String = "public", table: String) extends Pol
 
   def db: Database
 
-  val processingTable = {
+  private val processingTable = {
     val tempName = s"${table}_processing_queue"
     if (schema.equalsIgnoreCase("public")) tempName
     else s"${schema}.${tempName}"
   }
 
-  val journalTable = {
+  private val journalTable = {
     val tempName = s"${table}_journal"
     if (schema.equalsIgnoreCase("public")) tempName
     else s"${schema}.${tempName}"
@@ -49,6 +49,7 @@ abstract class DBPollActor(schema: String = "public", table: String) extends Pol
         println("Continuing with safeProcessRecord method")
         deleteProcessingQueueRecord(record.processingQueueId)
         insertJournalRecord(record)
+
       case Failure(ex) =>
         log.info("Discontinuing with safeProcessRecord method")
         println("Discontinuing with safeProcessRecord method" + ex.getMessage)
@@ -58,53 +59,65 @@ abstract class DBPollActor(schema: String = "public", table: String) extends Pol
 
   private def deleteProcessingQueueRecord(id: Int) = {
     db.withConnection { implicit connection =>
-      SQL(DeleteQuery(id)).executeUpdate()
+      SQL(deleteQuery(id)).executeUpdate()
     }
   }
 
   private def insertJournalRecord(record: ProcessQueueOrder) = {
     db.withConnection { implicit connection =>
-      SQL(InsertQuery(record)).executeInsert()
+      SQL(insertQuery(record)).executeInsert()
     }
   }
 
   private def setErrors(processingQueueId: Int, throwable: Throwable) = {
     db.withConnection { implicit connection =>
-      SQL(SetErrorsQuery(processingQueueId, throwable)).executeUpdate()
+      SQL(setErrorsQuery(processingQueueId, throwable)).executeUpdate()
     }
   }
 
   private def getEarliestRecord(processingTable: String): ProcessQueueOrder = {
     db.withConnection { implicit connection =>
-      SQL(BaseQuery).as(ProcessingQueueOrderParser().single)
+      SQL(baseQuery).as(processingQueueOrderParser().single)
     }
   }
 
-  private def BaseQuery =
+  private def baseQuery =
     s"""
        |select processing_queue_id, id, number, merchant_id, submitted_at, created_at,updated_at, total, operation
        |from ${processingTable}
        |order by created_at asc limit 1
        |""".stripMargin
 
-  private def DeleteQuery(id: Int) =
+  private def deleteQuery(id: Int) =
     s"""
        |delete from ${processingTable} where processing_queue_id = $id
        |""".stripMargin
 
-  private def InsertQuery(record: ProcessQueueOrder) =
+  private def insertQuery(record: ProcessQueueOrder) =
     s"""
-       |insert into $journalTable (processing_queue_id, id, number, merchant_id, total, submitted_at, created_at, updated_at, operation)
-       |values ('${record.processingQueueId}', '${record.id}', '${record.number}', '${record.merchantId}', ${record.total},'${record.submittedAt}', '${record.createdAt}', '${record.updatedAt}', '${record.operation}')
+       |insert into $journalTable (
+       |  processing_queue_id, id, number, merchant_id,
+       |  total, submitted_at, created_at,
+       |  updated_at, operation
+       |)
+       |values
+       |  (
+       |    '${record.processingQueueId}', '${record.id}',
+       |    '${record.number}', '${record.merchantId}',
+       |    ${record.total}, '${record.submittedAt}',
+       |    '${record.createdAt}', '${record.updatedAt}',
+       |    '${record.operation}'
+       |  )
+       |
        |""".stripMargin
 
-  private def SetErrorsQuery(id: Int, ex: Throwable) = {
+  private def setErrorsQuery(id: Int, ex: Throwable) = {
     s"""
        |update $processingTable set error_message = '${ex.getMessage}' where processing_queue_id = $id
        |""".stripMargin
   }
 
-  private def ProcessingQueueOrderParser(): RowParser[ProcessQueueOrder] = {
+  private def processingQueueOrderParser(): RowParser[ProcessQueueOrder] = {
     SqlParser.int("processing_queue_id") ~
       SqlParser.str("id") ~
       SqlParser.str("number") ~
@@ -123,4 +136,14 @@ abstract class DBPollActor(schema: String = "public", table: String) extends Pol
   }
 }
 
-case class ProcessQueueOrder(processingQueueId: Int, id: String, number: String, merchantId: String, total: Double, submittedAt: DateTime, createdAt: DateTime, updatedAt: DateTime, operation: String)
+case class ProcessQueueOrder(
+  processingQueueId: Int,
+  id: String,
+  number: String,
+  merchantId: String,
+  total: Double,
+  submittedAt: DateTime,
+  createdAt: DateTime,
+  updatedAt: DateTime,
+  operation: String
+)

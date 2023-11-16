@@ -28,6 +28,7 @@ extends DBPollActor(table = "orders") {
         log.info("Inside OrderJournalActor")
         println("OrderJournalActor running ====" + record)
         throw new ArithmeticException("Exception Occur")
+
       case "DELETE" =>
         println("Inside DELETE operation")
         Success(())
