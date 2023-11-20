@@ -1,14 +1,17 @@
 package com.nashtech.services
 
 import akka.actor.ActorRef
-import com.amazonaws.services.sqs.AmazonSQSClient
 import com.google.inject.ImplementedBy
+import com.nashtech.Publisher
 import com.nashtech.order.v1.models.Order
 import org.joda.time.DateTime
-import play.api.{Configuration, db}
+import play.api.Configuration
+import software.amazon.awssdk.http.urlconnection.UrlConnectionHttpClient
+import software.amazon.awssdk.regions.Region
+import software.amazon.awssdk.services.kinesis.KinesisClient
 
+import java.net.URI
 import javax.inject.{Inject, Named, Singleton}
-import scala.util.{Failure, Success, Try}
 
 @ImplementedBy(classOf[OrderServiceImpl])
 trait OrderService {
@@ -25,14 +28,34 @@ class OrderServiceImpl @Inject()(@Named("order-journal-actor") orderActor: Actor
     db.get(number) match {
       case Some(order) =>
         orderActor ! "Insert"
-        val sqs = new AmazonSQSClient()
-        sqs.setEndpoint(config.get[String]("aws.sqs.local.endpoint"))
-        sqs.sendMessage(sqs.getQueueUrl("example").getQueueUrl, "Hello World!")
+        /*val kinesisClient: AmazonKinesis = AmazonKinesisClient.builder().build()
+        Publisher.publish(kinesisClient)*/
+        /*val res1 = Await.result(wsClient.url("http://localhost:4566/health").get(), 10.second) match {
+          case AhcWSResponse(underlying) => underlying.status == 200
+          case _ => false
+        }
+        val res2 = Await.result(wsClient.url("http://localhost:4566/health").get(), 10.second) match {
+          case AhcWSResponse(underlying) => underlying.status == 200
+          case _ => false
+        }*/
+        if (true) {
+          val kinesisClient = KinesisClient.builder()
+            .region(Region.US_EAST_1)
+            .endpointOverride(new URI("http://localhost:4566"))
+            .httpClient(UrlConnectionHttpClient.builder().build())
+            .build()
+          Publisher.publishV2(kinesisClient)
+        }
+        else {
+          println("\n\nCould Not connect to localhost!!!\n\n")
+        }
+        // kinesisClient.setEndpoint(config.get[String]("aws.sqs.local.endpoint"))
+        // sqs.getRecords()
         Right(order)
       case None =>
-        val sqs = new AmazonSQSClient()
+        /*val sqs = new AmazonSQSClient()
         sqs.setEndpoint(config.get[String]("aws.sqs.local.endpoint"))
-        sqs.sendMessage(sqs.getQueueUrl("example").getQueueUrl, "s3://example-bucket/path/to/cat.jpg")
+        sqs.sendMessage(sqs.getQueueUrl("example").getQueueUrl, "s3://example-bucket/path/to/cat.jpg")*/
         Left(Seq("Order Not Found"))
     }
   }
