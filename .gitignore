@@ -2,3 +2,5 @@
 .idea/
 target/
 /app/volume/
+/project/project/
+/project/target

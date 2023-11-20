@@ -1,13 +1,17 @@
 package com.nashtech.services
 
 import akka.actor.ActorRef
-import com.amazonaws.services.sqs.AmazonSQSClient
 import com.google.inject.ImplementedBy
+import com.nashtech.Publisher
 import com.nashtech.database.OrdersDao
 import com.nashtech.order.v1.models.{Order, OrderForm}
 import org.joda.time.DateTime
 import play.api.Configuration
+import software.amazon.awssdk.http.urlconnection.UrlConnectionHttpClient
+import software.amazon.awssdk.regions.Region
+import software.amazon.awssdk.services.kinesis.KinesisClient
 
+import java.net.URI
 import javax.inject.{Inject, Named, Singleton}
 import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
@@ -38,9 +42,14 @@ class OrderServiceImpl @Inject()(@Named("order-journal-actor") orderActor: Actor
     Try(dao.getByNumber(merchantId, number)) match {
       case Failure(exception) => Left(Seq(exception.getMessage))
       case Success(order) => orderActor ! "Insert"
-        val sqs = new AmazonSQSClient()
-        sqs.setEndpoint(config.get[String]("aws.sqs.local.endpoint"))
-        sqs.sendMessage(sqs.getQueueUrl("example").getQueueUrl, "Hello World!")
+        if (true) {
+          val kinesisClient = KinesisClient.builder()
+            .region(Region.US_EAST_1)
+            .endpointOverride(new URI("http://localhost:4566"))
+            .httpClient(UrlConnectionHttpClient.builder().build())
+            .build()
+          Publisher.publishV2(kinesisClient, order)
+        }
         Right(order)
     }
   }
