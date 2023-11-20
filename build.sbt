@@ -13,7 +13,7 @@ libraryDependencies ++= Seq(
   jdbc,
   "org.playframework.anorm" %% "anorm" % "2.7.0",
   "com.typesafe.play" %% "play-json" % "2.9.4",
-  "com.typesafe.play" %% "play-server" % "2.8.20",
+"com.typesafe.play" %% "play-server" % "2.8.20",
   "com.typesafe.play" %% "play-json-joda" % "2.10.1",
   "org.postgresql" % "postgresql" % "42.6.0",
   "com.amazonaws" % "amazon-kinesis-client" % "1.14.10",
@@ -26,6 +26,7 @@ libraryDependencies ++= Seq(
   "ch.qos.logback" % "logback-classic" % "1.4.7",
   "joda-time" % "joda-time" % "2.12.5",
   "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.14.2"
+
 )
 
 dependencyOverrides ++= Seq(
@@ -40,4 +41,3 @@ ThisBuild / libraryDependencySchemes ++= Seq(
   // "ch.qos.logback" % "logback-classic" % VersionScheme.Always,
   // "ch.qos.logback" % "logback-core" % VersionScheme.Always
 )
-
