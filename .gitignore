@@ -1,6 +1,9 @@
 .bsp/
 .idea/
 target/
+order/target/
 /app/volume/
 /project/project/
 /project/target
+/order-build/project/
+/order-build/target/
