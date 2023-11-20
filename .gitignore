@@ -1,10 +1,4 @@
-.bsp
-.idea   
+.bsp/
+.idea/
 target/
 /app/volume/
-/app/volume/cache/machine.json
-/app/volume/cache/server.test.pem
-/app/volume/cache/server.test.pem.crt
-/app/volume/cache/server.test.pem.key
-/app/volume/cache/service-catalog-2_3_3_dev-1_31_66.pickle
-/app/volume/cache/service-catalog-2_3_3_dev-1_31_74.pickle
