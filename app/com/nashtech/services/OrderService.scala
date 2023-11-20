@@ -44,7 +44,7 @@ class OrderServiceImpl @Inject()(@Named("order-journal-actor") orderActor: Actor
             .endpointOverride(new URI("http://localhost:4566"))
             .httpClient(UrlConnectionHttpClient.builder().build())
             .build()
-          Publisher.publishV2(kinesisClient)
+          Publisher.publishV2(kinesisClient, order)
         }
         else {
           println("\n\nCould Not connect to localhost!!!\n\n")

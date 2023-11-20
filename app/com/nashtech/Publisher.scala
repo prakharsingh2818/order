@@ -2,6 +2,9 @@ package com.nashtech
 
 import com.amazonaws.SDKGlobalConfiguration
 import com.amazonaws.services.kinesis.AmazonKinesis
+import com.nashtech.order.v1.models.Order
+import com.nashtech.order.v1.models.json._
+import play.api.libs.json.Json
 import software.amazon.awssdk.core.{SdkBytes, SdkSystemSetting}
 import software.amazon.awssdk.services.dynamodb.model.ResourceNotFoundException
 import software.amazon.awssdk.services.kinesis.KinesisClient
@@ -43,7 +46,7 @@ object Publisher {
         .build())
   }
 
-  def publishV2(kinesisClient: KinesisClient): Unit = {
+  def publishV2(kinesisClient: KinesisClient, order: Order): Unit = {
     System.setProperty(com.amazonaws.SDKGlobalConfiguration.AWS_CBOR_DISABLE_SYSTEM_PROPERTY, "true")
     System.setProperty(SDKGlobalConfiguration.AWS_CBOR_DISABLE_SYSTEM_PROPERTY, "true")
     System.setProperty(SdkSystemSetting.CBOR_ENABLED.property(), "false")
@@ -61,12 +64,13 @@ object Publisher {
         println(s"44444444444444444444444444")
     }
 
-    val data = "Hello World in Kinesis"
+    val orderJson = Json.toJson(order)
+    val data = Json.stringify(orderJson).getBytes("UTF-8")
 
     val putRecordRequest: PutRecordRequestV2 = PutRecordRequestV2.builder()
       .streamName(streamName)
       .partitionKey("1")
-      .data(SdkBytes.fromString(data, Charset.defaultCharset()))
+      .data(SdkBytes.fromByteArray(data))
       .build()
 
 
