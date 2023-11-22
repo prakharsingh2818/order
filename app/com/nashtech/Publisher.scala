@@ -7,10 +7,11 @@ import com.nashtech.order.v1.models.json._
 import play.api.libs.json.Json
 import software.amazon.awssdk.core.{SdkBytes, SdkSystemSetting}
 import software.amazon.awssdk.services.dynamodb.model.ResourceNotFoundException
-import software.amazon.awssdk.services.kinesis.KinesisClient
+import software.amazon.awssdk.services.kinesis.{KinesisAsyncClient, KinesisClient}
 import software.amazon.awssdk.services.kinesis.model.{CreateStreamRequest, CreateStreamResponse, DescribeStreamRequest, PutRecordsRequestEntry, PutRecordRequest => PutRecordRequestV2}
 
 import java.nio.charset.Charset
+import java.util.concurrent.CompletableFuture
 import scala.Console.println
 import scala.util.{Failure, Success, Try}
 
@@ -37,7 +38,7 @@ object Publisher {
     }
   }
 
-  private def createStream(kinesisClient: KinesisClient, streamName: String, numAttempts: Int = 0): CreateStreamResponse = {
+  private def createStream(kinesisClient: KinesisAsyncClient, streamName: String, numAttempts: Int = 0): CompletableFuture[CreateStreamResponse] = {
     println("---------------------------")
     kinesisClient.createStream(
       CreateStreamRequest.builder()
@@ -46,12 +47,13 @@ object Publisher {
         .build())
   }
 
-  def publishV2(kinesisClient: KinesisClient, order: Order): Unit = {
+  def publishV2(kinesisClient: KinesisAsyncClient, order: Order): Unit = {
     System.setProperty(com.amazonaws.SDKGlobalConfiguration.AWS_CBOR_DISABLE_SYSTEM_PROPERTY, "true")
     System.setProperty(SDKGlobalConfiguration.AWS_CBOR_DISABLE_SYSTEM_PROPERTY, "true")
     System.setProperty(SdkSystemSetting.CBOR_ENABLED.property(), "false")
-    val streamName = "order-stream"
+    val streamName = "lambda-stream-3"
     println(s"11111111111111111111111111111111")
+
     Try(kinesisClient.describeStream(DescribeStreamRequest.builder().streamName(streamName).build())) match {
       case Failure(_: ResourceNotFoundException) =>
         println(s"22222222222222222222222222222222222222")
@@ -59,12 +61,13 @@ object Publisher {
       case Failure(ex) => // no-op
         // createStream(kinesisClient, streamName)
 
-        println(s"333333333333333333333333")
-      case Success(_) => // no-op
-        println(s"44444444444444444444444444")
+        println(s"333333333333333333333333 $ex")
+      case Success(value) => // no-op
+        println(s"44444444444444444444444444 ${value.get()}")
     }
 
     val orderJson = Json.toJson(order)
+    println(s"****************************** $orderJson")
     val data = Json.stringify(orderJson).getBytes("UTF-8")
 
     val putRecordRequest: PutRecordRequestV2 = PutRecordRequestV2.builder()
@@ -76,9 +79,9 @@ object Publisher {
 
     Try {
       kinesisClient.putRecord(putRecordRequest)
-      println(s"\n\n${putRecordRequest.data().asByteBuffer()}\n\n")
-      println(s"\n\n${putRecordRequest.data().asByteArray().mkString("{", ", ", "}")}\n\n")
-      println(s"\n\n${putRecordRequest.data().asUtf8String()}\n\n")
+      println(s"1-*****************\n\n${putRecordRequest.data().asByteBuffer()}\n\n")
+      println(s"2-*****************\n\n${putRecordRequest.data().asByteArray().mkString("{", ", ", "}")}\n\n")
+      println(s"3-*****************\n\n${putRecordRequest.data().asUtf8String()}\n\n")
 
     } match {
       case Failure(exception) => throw exception

@@ -7,9 +7,11 @@ import com.nashtech.database.OrdersDao
 import com.nashtech.order.v1.models.{Order, OrderForm}
 import org.joda.time.DateTime
 import play.api.Configuration
+import software.amazon.awssdk.auth.credentials.{AwsBasicCredentials, StaticCredentialsProvider}
+import software.amazon.awssdk.http.nio.netty.NettyNioAsyncHttpClient
 import software.amazon.awssdk.http.urlconnection.UrlConnectionHttpClient
 import software.amazon.awssdk.regions.Region
-import software.amazon.awssdk.services.kinesis.KinesisClient
+import software.amazon.awssdk.services.kinesis.{KinesisAsyncClient, KinesisClient}
 
 import java.net.URI
 import javax.inject.{Inject, Named, Singleton}
@@ -43,10 +45,16 @@ class OrderServiceImpl @Inject()(@Named("order-journal-actor") orderActor: Actor
       case Failure(exception) => Left(Seq(exception.getMessage))
       case Success(order) => orderActor ! "Insert"
         if (true) {
-          val kinesisClient = KinesisClient.builder()
+          val credentials = AwsBasicCredentials.create("test", "test")
+
+          val credentialsProvider = StaticCredentialsProvider.create(credentials)
+          //  val asyncHttpClient: SdkAsyncHttpClient = NettyNioAsyncHttpClient.builder().build()
+
+          val kinesisClient: KinesisAsyncClient = KinesisAsyncClient.builder()
             .region(Region.US_EAST_1)
-            .endpointOverride(new URI("http://localhost:4566"))
-            .httpClient(UrlConnectionHttpClient.builder().build())
+            .credentialsProvider(credentialsProvider)
+            .endpointOverride(new java.net.URI("http://localhost:4566"))
+            .httpClient(NettyNioAsyncHttpClient.builder().build())
             .build()
           Publisher.publishV2(kinesisClient, order)
         }
