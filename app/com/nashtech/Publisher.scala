@@ -7,8 +7,8 @@ import com.nashtech.order.v1.models.json._
 import play.api.libs.json.Json
 import software.amazon.awssdk.core.{SdkBytes, SdkSystemSetting}
 import software.amazon.awssdk.services.dynamodb.model.ResourceNotFoundException
-import software.amazon.awssdk.services.kinesis.{KinesisAsyncClient, KinesisClient}
-import software.amazon.awssdk.services.kinesis.model.{CreateStreamRequest, CreateStreamResponse, DescribeStreamRequest, PutRecordsRequestEntry, PutRecordRequest => PutRecordRequestV2}
+import software.amazon.awssdk.services.kinesis.KinesisAsyncClient
+import software.amazon.awssdk.services.kinesis.model.{CreateStreamRequest, CreateStreamResponse, DescribeStreamRequest, GetShardIteratorRequest, PutRecordsRequestEntry, ShardIteratorType, PutRecordRequest => PutRecordRequestV2}
 
 import java.nio.charset.Charset
 import java.util.concurrent.CompletableFuture
@@ -40,18 +40,35 @@ object Publisher {
 
   private def createStream(kinesisClient: KinesisAsyncClient, streamName: String, numAttempts: Int = 0): CompletableFuture[CreateStreamResponse] = {
     println("---------------------------")
-    kinesisClient.createStream(
+    val response = kinesisClient.createStream(
       CreateStreamRequest.builder()
         .streamName(streamName)
         .shardCount(1)
         .build())
+
+    val stream = kinesisClient.describeStream(DescribeStreamRequest.builder().streamName(streamName).build())
+    //    println("\n***************************"+stream+"\n")
+
+    val streamNameDesc = stream.get.streamDescription().streamName()
+    System.setProperty("aws.cborEnabled", "false")
+    val shardId = stream.get().streamDescription().shards().get(0).shardId()
+
+    val getShardIteratorRequest = GetShardIteratorRequest.builder()
+      .streamName(streamNameDesc)
+      .shardId(shardId)
+      .shardIteratorType(ShardIteratorType.LATEST)
+      .build()
+
+    val shardIterator = kinesisClient.getShardIterator(getShardIteratorRequest).get().getValueForField("ShardIterator", classOf[String])
+    println(s"\n\n$shardIterator\n")
+    response
   }
 
   def publishV2(kinesisClient: KinesisAsyncClient, order: Order): Unit = {
     System.setProperty(com.amazonaws.SDKGlobalConfiguration.AWS_CBOR_DISABLE_SYSTEM_PROPERTY, "true")
     System.setProperty(SDKGlobalConfiguration.AWS_CBOR_DISABLE_SYSTEM_PROPERTY, "true")
     System.setProperty(SdkSystemSetting.CBOR_ENABLED.property(), "false")
-    val streamName = "lambda-stream-3"
+    val streamName = "order-stream"
     println(s"11111111111111111111111111111111")
 
     Try(kinesisClient.describeStream(DescribeStreamRequest.builder().streamName(streamName).build())) match {
@@ -59,7 +76,7 @@ object Publisher {
         println(s"22222222222222222222222222222222222222")
         createStream(kinesisClient, streamName)
       case Failure(ex) => // no-op
-        // createStream(kinesisClient, streamName)
+        createStream(kinesisClient, streamName)
 
         println(s"333333333333333333333333 $ex")
       case Success(value) => // no-op

@@ -2,18 +2,16 @@ package com.nashtech.services
 
 import akka.actor.ActorRef
 import com.google.inject.ImplementedBy
-import com.nashtech.Publisher
+import com.nashtech.{OrderEventConsumer, Publisher}
 import com.nashtech.database.OrdersDao
 import com.nashtech.order.v1.models.{Order, OrderForm}
 import org.joda.time.DateTime
 import play.api.Configuration
 import software.amazon.awssdk.auth.credentials.{AwsBasicCredentials, StaticCredentialsProvider}
 import software.amazon.awssdk.http.nio.netty.NettyNioAsyncHttpClient
-import software.amazon.awssdk.http.urlconnection.UrlConnectionHttpClient
 import software.amazon.awssdk.regions.Region
-import software.amazon.awssdk.services.kinesis.{KinesisAsyncClient, KinesisClient}
+import software.amazon.awssdk.services.kinesis.KinesisAsyncClient
 
-import java.net.URI
 import javax.inject.{Inject, Named, Singleton}
 import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
@@ -34,13 +32,12 @@ trait OrderService {
 }
 
 @Singleton
-class OrderServiceImpl @Inject()(@Named("order-journal-actor") orderActor: ActorRef,  dao: OrdersDao, config: Configuration) extends OrderService {
+class OrderServiceImpl @Inject()(@Named("order-journal-actor") orderActor: ActorRef,  dao: OrdersDao, config: Configuration, consumer: OrderEventConsumer) extends OrderService {
   private val db: Map[String, Order] = Map(
     "1" -> Order(id = "1", number = "1", merchantId = "X", submittedAt = DateTime.now(), total = 302.5)
   )
 
   override def getByNumber(merchantId: String, number: String): Either[Seq[String], Order] = {
-
     Try(dao.getByNumber(merchantId, number)) match {
       case Failure(exception) => Left(Seq(exception.getMessage))
       case Success(order) => orderActor ! "Insert"
@@ -56,6 +53,8 @@ class OrderServiceImpl @Inject()(@Named("order-journal-actor") orderActor: Actor
             .endpointOverride(new java.net.URI("http://localhost:4566"))
             .httpClient(NettyNioAsyncHttpClient.builder().build())
             .build()
+          consumer.run(kinesisClient)
+
           Publisher.publishV2(kinesisClient, order)
         }
         Right(order)
