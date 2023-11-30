@@ -53,9 +53,10 @@ class OrderServiceImpl @Inject()(@Named("order-journal-actor") orderActor: Actor
             .endpointOverride(new java.net.URI("http://localhost:4566"))
             .httpClient(NettyNioAsyncHttpClient.builder().build())
             .build()
-          consumer.run(kinesisClient)
+
 
           Publisher.publishV2(kinesisClient, order)
+          // consumer.run(kinesisClient)
         }
         Right(order)
     }

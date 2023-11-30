@@ -21,6 +21,7 @@ import java.nio.charset.StandardCharsets
 import java.util.UUID
 import java.util.concurrent.{ExecutionException, TimeUnit, TimeoutException}
 import javax.inject.Inject
+import scala.util.{Failure, Success, Try}
 
 class OrderEventProcessorFactory @Inject() (ordersDao: OrdersDao) extends ShardRecordProcessorFactory {
   override def shardRecordProcessor(): ShardRecordProcessor = new OrderEventProcessor(ordersDao)
@@ -33,8 +34,8 @@ class OrderEventConsumer @Inject() (
 
 
   def run(kinesisClient: KinesisAsyncClient): Unit = {
-    val dynamoClient = DynamoDbAsyncClient.builder.region(Region.US_EAST_1).build
-    val cloudWatchClient = CloudWatchAsyncClient.builder.region(Region.US_EAST_1).build
+    val dynamoClient = DynamoDbAsyncClient.builder().region(Region.US_EAST_1).build()
+    val cloudWatchClient = CloudWatchAsyncClient.builder().region(Region.US_EAST_1).build()
     val configsBuilder = new ConfigsBuilder(
       "order-stream",
       applicationName,
@@ -106,11 +107,11 @@ class OrderEventProcessor @Inject() (dao: OrdersDao) extends ShardRecordProcesso
       s"Processing record pk: ${record.partitionKey()} -- Data: $eventString"
     )
     val eventJson = Json.parse(eventString)
-    val event = eventJson.as[Order]
+    val event = Try(eventJson.as[Order])
 
     event match {
-      case order => logger.info(s"Consumed Order. $order")
-      case e => logger.info(s"Failed to consume. $e")
+      case Success(order) => logger.info(s"Consumed Order. $order")
+      case Failure(e) => logger.info(s"Failed to consume. $e")
     }
   }
 

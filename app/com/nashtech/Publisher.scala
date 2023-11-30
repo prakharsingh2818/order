@@ -6,13 +6,12 @@ import com.nashtech.order.v1.models.Order
 import com.nashtech.order.v1.models.json._
 import play.api.libs.json.Json
 import software.amazon.awssdk.core.{SdkBytes, SdkSystemSetting}
-import software.amazon.awssdk.services.dynamodb.model.ResourceNotFoundException
 import software.amazon.awssdk.services.kinesis.KinesisAsyncClient
-import software.amazon.awssdk.services.kinesis.model.{CreateStreamRequest, CreateStreamResponse, DescribeStreamRequest, GetShardIteratorRequest, PutRecordsRequestEntry, ShardIteratorType, PutRecordRequest => PutRecordRequestV2}
+import software.amazon.awssdk.services.kinesis.model.{CreateStreamRequest, CreateStreamResponse, DescribeStreamRequest, GetShardIteratorRequest, PutRecordsRequestEntry, ResourceNotFoundException, ShardIteratorType, PutRecordRequest => PutRecordRequestV2}
 
 import java.nio.charset.Charset
-import java.util.concurrent.CompletableFuture
 import scala.Console.println
+import scala.concurrent.duration.SECONDS
 import scala.util.{Failure, Success, Try}
 
 object Publisher {
@@ -38,13 +37,14 @@ object Publisher {
     }
   }
 
-  private def createStream(kinesisClient: KinesisAsyncClient, streamName: String, numAttempts: Int = 0): CompletableFuture[CreateStreamResponse] = {
+  private def createStream(kinesisClient: KinesisAsyncClient, streamName: String, numAttempts: Int = 0): CreateStreamResponse = {
     println("---------------------------")
     val response = kinesisClient.createStream(
       CreateStreamRequest.builder()
         .streamName(streamName)
         .shardCount(1)
         .build())
+      .get(10, SECONDS)
 
     val stream = kinesisClient.describeStream(DescribeStreamRequest.builder().streamName(streamName).build())
     //    println("\n***************************"+stream+"\n")
@@ -68,10 +68,10 @@ object Publisher {
     System.setProperty(com.amazonaws.SDKGlobalConfiguration.AWS_CBOR_DISABLE_SYSTEM_PROPERTY, "true")
     System.setProperty(SDKGlobalConfiguration.AWS_CBOR_DISABLE_SYSTEM_PROPERTY, "true")
     System.setProperty(SdkSystemSetting.CBOR_ENABLED.property(), "false")
-    val streamName = "order-stream"
+    val streamName = "order-stream-1"
     println(s"11111111111111111111111111111111")
 
-    Try(kinesisClient.describeStream(DescribeStreamRequest.builder().streamName(streamName).build())) match {
+    Try(kinesisClient.describeStream(DescribeStreamRequest.builder().streamName(streamName).build()).get(10, SECONDS)) match {
       case Failure(_: ResourceNotFoundException) =>
         println(s"22222222222222222222222222222222222222")
         createStream(kinesisClient, streamName)
@@ -80,9 +80,8 @@ object Publisher {
 
         println(s"333333333333333333333333 $ex")
       case Success(value) => // no-op
-        println(s"44444444444444444444444444 ${value.get()}")
+        println(s"44444444444444444444444444 ${value}")
     }
-
     val orderJson = Json.toJson(order)
     println(s"****************************** $orderJson")
     val data = Json.stringify(orderJson).getBytes("UTF-8")
@@ -95,7 +94,7 @@ object Publisher {
 
 
     Try {
-      kinesisClient.putRecord(putRecordRequest)
+      kinesisClient.putRecord(putRecordRequest).get(10, SECONDS)
       println(s"1-*****************\n\n${putRecordRequest.data().asByteBuffer()}\n\n")
       println(s"2-*****************\n\n${putRecordRequest.data().asByteArray().mkString("{", ", ", "}")}\n\n")
       println(s"3-*****************\n\n${putRecordRequest.data().asUtf8String()}\n\n")
