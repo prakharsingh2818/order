@@ -26,8 +26,8 @@ extends DBPollActor(table = "orders") {
   override def process(record: ProcessQueueOrder): Try[Unit] = {
     record.operation match {
       case "INSERT" | "UPDATE" => // TODO: Publish using kinesis
-        log.info("Inside OrderJournalActor")
-        println("OrderJournalActor running ====" + record)
+        /*log.info("Inside OrderJournalActor")
+        println("OrderJournalActor running ====" + record)*/
         throw new ArithmeticException("Exception Occur")
 
       case "DELETE" =>

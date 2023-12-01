@@ -40,7 +40,7 @@ class OrderServiceImpl @Inject()(@Named("order-journal-actor") orderActor: Actor
   override def getByNumber(merchantId: String, number: String): Either[Seq[String], Order] = {
     Try(dao.getByNumber(merchantId, number)) match {
       case Failure(exception) => Left(Seq(exception.getMessage))
-      case Success(order) => orderActor ! "Insert"
+      case Success(order) => // orderActor ! "Insert"
         if (true) {
           val credentials = AwsBasicCredentials.create("test", "test")
 
@@ -56,7 +56,7 @@ class OrderServiceImpl @Inject()(@Named("order-journal-actor") orderActor: Actor
 
 
           Publisher.publishV2(kinesisClient, order)
-          // consumer.run(kinesisClient)
+          consumer.run(kinesisClient)
         }
         Right(order)
     }

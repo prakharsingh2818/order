@@ -6,6 +6,8 @@ import com.nashtech.order.v1.models.Order
 import com.nashtech.order.v1.models.json.jsonReadsOrderOrder
 import com.typesafe.scalalogging.LazyLogging
 import play.api.libs.json.Json
+import software.amazon.awssdk.auth.credentials.{AwsBasicCredentials, StaticCredentialsProvider}
+import software.amazon.awssdk.http.nio.netty.NettyNioAsyncHttpClient
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.cloudwatch.CloudWatchAsyncClient
 import software.amazon.awssdk.services.dynamodb.DynamoDbAsyncClient
@@ -28,25 +30,44 @@ class OrderEventProcessorFactory @Inject() (ordersDao: OrdersDao) extends ShardR
 }
 
 class OrderEventConsumer @Inject() (
-                                applicationName: String,
                                 ordersDao: OrdersDao
                               ) extends LazyLogging {
 
 
-  def run(kinesisClient: KinesisAsyncClient): Unit = {
-    val dynamoClient = DynamoDbAsyncClient.builder().region(Region.US_EAST_1).build()
-    val cloudWatchClient = CloudWatchAsyncClient.builder().region(Region.US_EAST_1).build()
+  def run(kinesisClient: KinesisAsyncClient): Unit = {;
+    val credentials = AwsBasicCredentials.create("test", "test")
+
+    val credentialsProvider = StaticCredentialsProvider.create(credentials)
+    println(s"1111111111111111111111111111111111")
+    val dynamoClient = DynamoDbAsyncClient
+      .builder()
+      .region(Region.US_EAST_1)
+      .credentialsProvider(credentialsProvider)
+      .endpointOverride(new java.net.URI("http://localhost:4566"))
+      .httpClient(NettyNioAsyncHttpClient.builder().build())
+      .build()
+
+    println(s"22222222222222222222222222222222222")
+    val cloudWatchClient = CloudWatchAsyncClient
+      .builder()
+      .credentialsProvider(credentialsProvider)
+      .endpointOverride(new java.net.URI("http://localhost:4566"))
+      .httpClient(NettyNioAsyncHttpClient.builder().build())
+      .region(Region.US_EAST_1)
+      .build()
+    println(s"33333333333333333333333333333333333333333333333")
     val configsBuilder = new ConfigsBuilder(
       "order-stream",
-      applicationName,
+      "order-application",
       kinesisClient,
       dynamoClient,
       cloudWatchClient,
       UUID.randomUUID.toString,
       new OrderEventProcessorFactory(ordersDao)
     )
+    println(s"4444444444444444444444444444444444444444")
 
-    val scheduler = new Scheduler(
+    val scheduler: Scheduler = new Scheduler(
       configsBuilder.checkpointConfig,
       configsBuilder.coordinatorConfig,
       configsBuilder.leaseManagementConfig,
@@ -55,31 +76,45 @@ class OrderEventConsumer @Inject() (
       configsBuilder.processorConfig,
       configsBuilder.retrievalConfig
     )
+    println(s"55555555555555555555555555555555555555555555555555")
 
     val schedulerThread = new Thread(scheduler)
     schedulerThread.setDaemon(true)
     schedulerThread.start()
-
+    println(s"666666666666666666666666666666666666666666")
     val reader = new BufferedReader(new InputStreamReader(System.in))
 
-    try reader.readLine
+    try {
+      println(s"7777777777777777777777777777777777777777777")
+      reader.readLine
+    }
     catch {
       case ioException: IOException =>
-        logger.error("Caught exception while waiting for confirm. Shutting down.", ioException)
+        println(s"8888888888888888888888888888888888888")
+
+        println("Caught exception while waiting for confirm. Shutting down.", ioException)
     }
 
     val gracefulShutdownFuture = scheduler.startGracefulShutdown
-    logger.info("Waiting up to 20 seconds for shutdown to complete.")
-    try gracefulShutdownFuture.get(20, TimeUnit.SECONDS)
+    println("Waiting up to 20 seconds for shutdown to complete.")
+    try {
+      println(s"99999999999999999999999999999999999999999")
+      gracefulShutdownFuture.get(20, TimeUnit.SECONDS)
+    }
     catch {
       case _: InterruptedException =>
-        logger.info("Interrupted while waiting for graceful shutdown. Continuing.")
+        println(s"101010101010101010101010101010101010101010")
+        println("Interrupted while waiting for graceful shutdown. Continuing.")
       case e: ExecutionException =>
-        logger.error("Exception while executing graceful shutdown.", e)
+        println(s"11-11-11-11-11-11-11-11-11-11-11-11")
+        println("Exception while executing graceful shutdown.", e)
       case _: TimeoutException =>
-        logger.error("Timeout while waiting for shutdown. Scheduler may not have exited.")
+        println(s"12121212121212121212121212121212121212121212")
+        println("Timeout while waiting for shutdown. Scheduler may not have exited.")
     }
-    logger.info("Completed, shutting down now.")
+    println(s"13131313131313131313131313131313131313131313")
+
+    println("Completed, shutting down now.")
 
   }
 }
@@ -87,8 +122,8 @@ class OrderEventConsumer @Inject() (
 class OrderEventProcessor @Inject() (dao: OrdersDao) extends ShardRecordProcessor with LazyLogging {
 
   override def initialize(initializationInput: InitializationInput): Unit = {
-    logger.info(s"Initializing record processor for shard: ${initializationInput.shardId}")
-    logger.info(s"Initializing @ Sequence: ${initializationInput.extendedSequenceNumber.toString}")
+    println(s"Initializing record processor for shard: ${initializationInput.shardId}")
+    println(s"Initializing @ Sequence: ${initializationInput.extendedSequenceNumber.toString}")
   }
 
   override def processRecords(processRecordsInput: ProcessRecordsInput): Unit =
@@ -103,37 +138,37 @@ class OrderEventProcessor @Inject() (dao: OrdersDao) extends ShardRecordProcesso
 
   private def processRecord(record: KinesisClientRecord): Unit = {
     val eventString = StandardCharsets.UTF_8.decode(record.data).toString
-    logger.info(
+    println(
       s"Processing record pk: ${record.partitionKey()} -- Data: $eventString"
     )
     val eventJson = Json.parse(eventString)
     val event = Try(eventJson.as[Order])
 
     event match {
-      case Success(order) => logger.info(s"Consumed Order. $order")
-      case Failure(e) => logger.info(s"Failed to consume. $e")
+      case Success(order) => println(s"Consumed Order. $order")
+      case Failure(e) => println(s"Failed to consume. $e")
     }
   }
 
   override def leaseLost(leaseLostInput: LeaseLostInput): Unit =
-    logger.info("Lost lease, so terminating.")
+    println("Lost lease, so terminating.")
 
   override def shardEnded(shardEndedInput: ShardEndedInput): Unit =
     try {
       // Important to checkpoint after reaching end of shard, so to start processing data from child shards.
-      logger.info("Reached shard end checkpointing.")
+      println("Reached shard end checkpointing.")
       shardEndedInput.checkpointer.checkpoint()
     } catch {
       case e: Throwable =>
-        logger.error("Exception while checkpointing at shard end. Giving up.", e)
+        println("Exception while checkpointing at shard end. Giving up.", e)
     }
 
   override def shutdownRequested(shutdownRequestedInput: ShutdownRequestedInput): Unit =
     try {
-      logger.info("Scheduler is shutting down, checkpointing.")
+      println("Scheduler is shutting down, checkpointing.")
       shutdownRequestedInput.checkpointer().checkpoint()
     } catch {
       case e: Throwable =>
-        logger.error("Exception while checkpointing at requested shutdown. Giving up.", e)
+        println("Exception while checkpointing at requested shutdown. Giving up.", e)
     }
 }

@@ -6,6 +6,7 @@ import com.nashtech.order.v1.models.Order
 import com.nashtech.order.v1.models.json._
 import play.api.libs.json.Json
 import software.amazon.awssdk.core.{SdkBytes, SdkSystemSetting}
+import software.amazon.awssdk.services.dynamodb.model.ResourceInUseException
 import software.amazon.awssdk.services.kinesis.KinesisAsyncClient
 import software.amazon.awssdk.services.kinesis.model.{CreateStreamRequest, CreateStreamResponse, DescribeStreamRequest, GetShardIteratorRequest, PutRecordsRequestEntry, ResourceNotFoundException, ShardIteratorType, PutRecordRequest => PutRecordRequestV2}
 
@@ -75,6 +76,7 @@ object Publisher {
       case Failure(_: ResourceNotFoundException) =>
         println(s"22222222222222222222222222222222222222")
         createStream(kinesisClient, streamName)
+      case Failure(_: ResourceInUseException) => Thread.sleep(3000)
       case Failure(ex) => // no-op
         createStream(kinesisClient, streamName)
 
