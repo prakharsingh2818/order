@@ -39,7 +39,7 @@ object Publisher {
   }
 
   private def createStream(kinesisClient: KinesisAsyncClient, streamName: String, numAttempts: Int = 0): CreateStreamResponse = {
-    println("---------------------------")
+    // println("---------------------------")
     val response = kinesisClient.createStream(
       CreateStreamRequest.builder()
         .streamName(streamName)
@@ -69,23 +69,23 @@ object Publisher {
     System.setProperty(com.amazonaws.SDKGlobalConfiguration.AWS_CBOR_DISABLE_SYSTEM_PROPERTY, "true")
     System.setProperty(SDKGlobalConfiguration.AWS_CBOR_DISABLE_SYSTEM_PROPERTY, "true")
     System.setProperty(SdkSystemSetting.CBOR_ENABLED.property(), "false")
-    val streamName = "order-stream-1"
-    println(s"11111111111111111111111111111111")
+    val streamName = "order-stream"
+    // println(s"11111111111111111111111111111111")
 
     Try(kinesisClient.describeStream(DescribeStreamRequest.builder().streamName(streamName).build()).get(10, SECONDS)) match {
       case Failure(_: ResourceNotFoundException) =>
-        println(s"22222222222222222222222222222222222222")
+        // println(s"22222222222222222222222222222222222222")
         createStream(kinesisClient, streamName)
       case Failure(_: ResourceInUseException) => Thread.sleep(3000)
       case Failure(ex) => // no-op
-        createStream(kinesisClient, streamName)
+        // createStream(kinesisClient, streamName)
 
-        println(s"333333333333333333333333 $ex")
+        // println(s"333333333333333333333333 $ex")
       case Success(value) => // no-op
-        println(s"44444444444444444444444444 ${value}")
+        // println(s"44444444444444444444444444 ${value}")
     }
     val orderJson = Json.toJson(order)
-    println(s"****************************** $orderJson")
+    // println(s"****************************** $orderJson")
     val data = Json.stringify(orderJson).getBytes("UTF-8")
 
     val putRecordRequest: PutRecordRequestV2 = PutRecordRequestV2.builder()
@@ -97,9 +97,9 @@ object Publisher {
 
     Try {
       kinesisClient.putRecord(putRecordRequest).get(10, SECONDS)
-      println(s"1-*****************\n\n${putRecordRequest.data().asByteBuffer()}\n\n")
-      println(s"2-*****************\n\n${putRecordRequest.data().asByteArray().mkString("{", ", ", "}")}\n\n")
-      println(s"3-*****************\n\n${putRecordRequest.data().asUtf8String()}\n\n")
+      // println(s"1-*****************\n\n${putRecordRequest.data().asByteBuffer()}\n\n")
+      // println(s"2-*****************\n\n${putRecordRequest.data().asByteArray().mkString("{", ", ", "}")}\n\n")
+      // println(s"3-*****************\n\n${putRecordRequest.data().asUtf8String()}\n\n")
 
     } match {
       case Failure(exception) => throw exception

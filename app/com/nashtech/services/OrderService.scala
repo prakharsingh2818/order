@@ -13,6 +13,7 @@ import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.kinesis.KinesisAsyncClient
 
 import javax.inject.{Inject, Named, Singleton}
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
 
@@ -56,7 +57,7 @@ class OrderServiceImpl @Inject()(@Named("order-journal-actor") orderActor: Actor
 
 
           Publisher.publishV2(kinesisClient, order)
-          consumer.run(kinesisClient)
+          Future(consumer.run(kinesisClient))
         }
         Right(order)
     }

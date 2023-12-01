@@ -38,7 +38,7 @@ class OrderEventConsumer @Inject() (
     val credentials = AwsBasicCredentials.create("test", "test")
 
     val credentialsProvider = StaticCredentialsProvider.create(credentials)
-    println(s"1111111111111111111111111111111111")
+    // println(s"1111111111111111111111111111111111")
     val dynamoClient = DynamoDbAsyncClient
       .builder()
       .region(Region.US_EAST_1)
@@ -47,7 +47,7 @@ class OrderEventConsumer @Inject() (
       .httpClient(NettyNioAsyncHttpClient.builder().build())
       .build()
 
-    println(s"22222222222222222222222222222222222")
+    // println(s"22222222222222222222222222222222222")
     val cloudWatchClient = CloudWatchAsyncClient
       .builder()
       .credentialsProvider(credentialsProvider)
@@ -55,7 +55,7 @@ class OrderEventConsumer @Inject() (
       .httpClient(NettyNioAsyncHttpClient.builder().build())
       .region(Region.US_EAST_1)
       .build()
-    println(s"33333333333333333333333333333333333333333333333")
+    // println(s"33333333333333333333333333333333333333333333333")
     val configsBuilder = new ConfigsBuilder(
       "order-stream",
       "order-application",
@@ -65,7 +65,7 @@ class OrderEventConsumer @Inject() (
       UUID.randomUUID.toString,
       new OrderEventProcessorFactory(ordersDao)
     )
-    println(s"4444444444444444444444444444444444444444")
+    // println(s"4444444444444444444444444444444444444444")
 
     val scheduler: Scheduler = new Scheduler(
       configsBuilder.checkpointConfig,
@@ -76,21 +76,21 @@ class OrderEventConsumer @Inject() (
       configsBuilder.processorConfig,
       configsBuilder.retrievalConfig
     )
-    println(s"55555555555555555555555555555555555555555555555555")
+    // println(s"55555555555555555555555555555555555555555555555555")
 
     val schedulerThread = new Thread(scheduler)
     schedulerThread.setDaemon(true)
     schedulerThread.start()
-    println(s"666666666666666666666666666666666666666666")
+    // println(s"666666666666666666666666666666666666666666")
     val reader = new BufferedReader(new InputStreamReader(System.in))
 
     try {
-      println(s"7777777777777777777777777777777777777777777")
+      // println(s"7777777777777777777777777777777777777777777")
       reader.readLine
     }
     catch {
       case ioException: IOException =>
-        println(s"8888888888888888888888888888888888888")
+        // println(s"8888888888888888888888888888888888888")
 
         println("Caught exception while waiting for confirm. Shutting down.", ioException)
     }
@@ -98,21 +98,21 @@ class OrderEventConsumer @Inject() (
     val gracefulShutdownFuture = scheduler.startGracefulShutdown
     println("Waiting up to 20 seconds for shutdown to complete.")
     try {
-      println(s"99999999999999999999999999999999999999999")
+      // println(s"99999999999999999999999999999999999999999")
       gracefulShutdownFuture.get(20, TimeUnit.SECONDS)
     }
     catch {
       case _: InterruptedException =>
-        println(s"101010101010101010101010101010101010101010")
+        // println(s"101010101010101010101010101010101010101010")
         println("Interrupted while waiting for graceful shutdown. Continuing.")
       case e: ExecutionException =>
-        println(s"11-11-11-11-11-11-11-11-11-11-11-11")
+        // println(s"11-11-11-11-11-11-11-11-11-11-11-11")
         println("Exception while executing graceful shutdown.", e)
       case _: TimeoutException =>
-        println(s"12121212121212121212121212121212121212121212")
+        // println(s"12121212121212121212121212121212121212121212")
         println("Timeout while waiting for shutdown. Scheduler may not have exited.")
     }
-    println(s"13131313131313131313131313131313131313131313")
+    // println(s"13131313131313131313131313131313131313131313")
 
     println("Completed, shutting down now.")
 
