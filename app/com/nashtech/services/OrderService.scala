@@ -2,7 +2,7 @@ package com.nashtech.services
 
 import akka.actor.ActorRef
 import com.google.inject.ImplementedBy
-import com.nashtech.{OrderEventConsumer, Publisher}
+import com.nashtech.Publisher
 import com.nashtech.database.OrdersDao
 import com.nashtech.order.v1.models.{Order, OrderForm}
 import org.joda.time.DateTime
@@ -13,7 +13,6 @@ import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.kinesis.KinesisAsyncClient
 
 import javax.inject.{Inject, Named, Singleton}
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
 
@@ -33,7 +32,7 @@ trait OrderService {
 }
 
 @Singleton
-class OrderServiceImpl @Inject()(@Named("order-journal-actor") orderActor: ActorRef,  dao: OrdersDao, config: Configuration, consumer: OrderEventConsumer) extends OrderService {
+class OrderServiceImpl @Inject()(@Named("order-journal-actor") orderActor: ActorRef,  dao: OrdersDao, config: Configuration) extends OrderService {
   private val db: Map[String, Order] = Map(
     "1" -> Order(id = "1", number = "1", merchantId = "X", submittedAt = DateTime.now(), total = 302.5)
   )
@@ -55,9 +54,8 @@ class OrderServiceImpl @Inject()(@Named("order-journal-actor") orderActor: Actor
             .httpClient(NettyNioAsyncHttpClient.builder().build())
             .build()
 
-
           Publisher.publishV2(kinesisClient, order)
-          Future(consumer.run(kinesisClient))
+          // Future(consumer.run(kinesisClient))
         }
         Right(order)
     }

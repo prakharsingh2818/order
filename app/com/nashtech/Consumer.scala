@@ -22,13 +22,14 @@ import java.io.{BufferedReader, IOException, InputStreamReader}
 import java.nio.charset.StandardCharsets
 import java.util.UUID
 import java.util.concurrent.{ExecutionException, TimeUnit, TimeoutException}
-import javax.inject.Inject
+import javax.inject.{Inject, Singleton}
 import scala.util.{Failure, Success, Try}
 
 class OrderEventProcessorFactory @Inject() (ordersDao: OrdersDao) extends ShardRecordProcessorFactory {
   override def shardRecordProcessor(): ShardRecordProcessor = new OrderEventProcessor(ordersDao)
 }
 
+@Singleton
 class OrderEventConsumer @Inject() (
                                 ordersDao: OrdersDao
                               ) extends LazyLogging {
@@ -38,7 +39,7 @@ class OrderEventConsumer @Inject() (
     val credentials = AwsBasicCredentials.create("test", "test")
 
     val credentialsProvider = StaticCredentialsProvider.create(credentials)
-    // println(s"1111111111111111111111111111111111")
+    println(s"1111111111111111111111111111111111")
     val dynamoClient = DynamoDbAsyncClient
       .builder()
       .region(Region.US_EAST_1)
