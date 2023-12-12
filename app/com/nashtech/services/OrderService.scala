@@ -5,7 +5,6 @@ import com.google.inject.ImplementedBy
 import com.nashtech.Publisher
 import com.nashtech.database.OrdersDao
 import com.nashtech.order.v1.models.{Order, OrderForm}
-import org.joda.time.DateTime
 import play.api.Configuration
 import software.amazon.awssdk.auth.credentials.{AwsBasicCredentials, StaticCredentialsProvider}
 import software.amazon.awssdk.http.nio.netty.NettyNioAsyncHttpClient
@@ -33,9 +32,6 @@ trait OrderService {
 
 @Singleton
 class OrderServiceImpl @Inject()(@Named("order-journal-actor") orderActor: ActorRef,  dao: OrdersDao, config: Configuration) extends OrderService {
-  private val db: Map[String, Order] = Map(
-    "1" -> Order(id = "1", number = "1", merchantId = "X", submittedAt = DateTime.now(), total = 302.5)
-  )
 
   override def getByNumber(merchantId: String, number: String): Either[Seq[String], Order] = {
     Try(dao.getByNumber(merchantId, number)) match {
@@ -45,7 +41,6 @@ class OrderServiceImpl @Inject()(@Named("order-journal-actor") orderActor: Actor
           val credentials = AwsBasicCredentials.create("test", "test")
 
           val credentialsProvider = StaticCredentialsProvider.create(credentials)
-          //  val asyncHttpClient: SdkAsyncHttpClient = NettyNioAsyncHttpClient.builder().build()
 
           val kinesisClient: KinesisAsyncClient = KinesisAsyncClient.builder()
             .region(Region.US_EAST_1)
@@ -54,8 +49,7 @@ class OrderServiceImpl @Inject()(@Named("order-journal-actor") orderActor: Actor
             .httpClient(NettyNioAsyncHttpClient.builder().build())
             .build()
 
-          Publisher.publishV2(kinesisClient, order)
-          // Future(consumer.run(kinesisClient))
+          Publisher.publish(kinesisClient, order)
         }
         Right(order)
     }
@@ -68,8 +62,8 @@ class OrderServiceImpl @Inject()(@Named("order-journal-actor") orderActor: Actor
     }
   }
 
-  override def createOrder(orderform: OrderForm): Either[String, Order] = {
-    Try(dao.createOrder(orderform)) match {
+  override def createOrder(orderForm: OrderForm): Either[String, Order] = {
+    Try(dao.createOrder(orderForm)) match {
       case Success(value) => Right(value)
       case Failure(exception) => Left(exception.getMessage)
     }
