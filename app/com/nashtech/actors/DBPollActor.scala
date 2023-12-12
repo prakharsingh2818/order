@@ -25,34 +25,30 @@ abstract class DBPollActor(schema: String = "public", table: String) extends Pol
   startPolling()
 
   override def preStart(): Unit = {
-    /*log.info("[DBPollActor] Pre-Start")
-    println("[DBPollActor] Pre-Start")*/
+    log.info("[DBPollActor] Pre-Start")
   }
 
   def process(record: ProcessQueueOrder): Try[Unit]
 
   override def processRecord(): Unit = {
-    // log.info("Inside processRecord method")
+     log.info("Inside processRecord method")
     val record = getEarliestRecord(processingTable)
     safeProcessRecord(record)
 
   }
 
-  def safeProcessRecord(record: ProcessQueueOrder) = {
+  private def safeProcessRecord(record: ProcessQueueOrder) = {
     Try {
-      /*log.info("Inside safeProcessRecord method")
-      println("Inside safeProcessRecord method")*/
+      log.info("Inside safeProcessRecord method")
       process(record)
     } match {
       case Success(_) =>
-        /*log.info("Continuing with safeProcessRecord method")
-        println("Continuing with safeProcessRecord method")*/
+        log.info("Continuing with safeProcessRecord method")
         deleteProcessingQueueRecord(record.processingQueueId)
         insertJournalRecord(record)
 
       case Failure(ex) =>
-        /*log.info("Discontinuing with safeProcessRecord method")
-        println("Discontinuing with safeProcessRecord method" + ex.getMessage)*/
+        log.info("Discontinuing with safeProcessRecord method")
         setErrors(record.processingQueueId, ex)
     }
   }
@@ -83,7 +79,15 @@ abstract class DBPollActor(schema: String = "public", table: String) extends Pol
 
   private def baseQuery =
     s"""
-       |select processing_queue_id, id, number, merchant_id, submitted_at, created_at,updated_at, total, operation
+       |select
+       |processing_queue_id,
+       |id,
+       |number,
+       |merchant_id,
+       |submitted_at,
+       |created_at,updated_at,
+       |total,
+       |operation
        |from ${processingTable}
        |order by created_at asc limit 1
        |""".stripMargin
@@ -96,9 +100,14 @@ abstract class DBPollActor(schema: String = "public", table: String) extends Pol
   private def insertQuery(record: ProcessQueueOrder) =
     s"""
        |insert into $journalTable (
-       |  processing_queue_id, id, number, merchant_id,
-       |  total, submitted_at, created_at,
-       |  updated_at, operation
+       |processing_queue_id,
+       |id,
+       |number,
+       |merchant_id,
+       |total,
+       |submitted_at,
+       |created_at,
+       |updated_at, operation
        |)
        |values
        |  (
@@ -108,7 +117,6 @@ abstract class DBPollActor(schema: String = "public", table: String) extends Pol
        |    '${record.createdAt}', '${record.updatedAt}',
        |    '${record.operation}'
        |  )
-       |
        |""".stripMargin
 
   private def setErrorsQuery(id: Int, ex: Throwable) = {

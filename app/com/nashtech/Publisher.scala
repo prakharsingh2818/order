@@ -21,6 +21,7 @@ object Publisher {
 
   private def createStream(kinesisClient: KinesisAsyncClient, streamName: String, numAttempts: Int = 0): CreateStreamResponse = {
     logger.info(s"Creating a new stream -> $streamName.")
+
     val response = kinesisClient.createStream(
       CreateStreamRequest.builder()
         .streamName(streamName)
@@ -48,6 +49,7 @@ object Publisher {
     System.setProperty(com.amazonaws.SDKGlobalConfiguration.AWS_CBOR_DISABLE_SYSTEM_PROPERTY, "true")
     System.setProperty(SDKGlobalConfiguration.AWS_CBOR_DISABLE_SYSTEM_PROPERTY, "true")
     System.setProperty(SdkSystemSetting.CBOR_ENABLED.property(), "false")
+
     val streamName = "order-stream"
 
     Try(kinesisClient.describeStream(DescribeStreamRequest.builder().streamName(streamName).build()).get(10, SECONDS)) match {
@@ -58,6 +60,7 @@ object Publisher {
       case Success(value) => // no-op
         logger.info(s"getting described stream $value")
     }
+
     val orderJson = Json.toJson(order)
     val data = Json.stringify(orderJson).getBytes("UTF-8")
 
