@@ -10,7 +10,7 @@ import scala.concurrent.duration.DurationInt
 
 class TaskCustomExecutionContext @Inject() (actorSystem: ActorSystem) extends CustomExecutionContext(actorSystem, "io-dispatcher")
 class ActorTask @Inject()(actorSystem: ActorSystem, executor: TaskCustomExecutionContext, @Named("order-journal-actor") orderJournalActor: ActorRef)
-  {
+{
   println("ActorTask")
   actorSystem.scheduler.scheduleWithFixedDelay(
     initialDelay = 1.seconds,
