@@ -1,27 +1,79 @@
 package com.nashtech
 
-import software.amazon.awssdk.core.SdkBytes
+import com.amazonaws.SDKGlobalConfiguration
+import com.amazonaws.services.kinesis.AmazonKinesis
+import com.typesafe.scalalogging.LazyLogging
+import com.nashtech.order.v1.models.Order
+import com.nashtech.order.v1.models.json._
+import play.api.libs.Files.logger
+import play.api.libs.json.Json
+import software.amazon.awssdk.core.{SdkBytes, SdkSystemSetting}
+import software.amazon.awssdk.services.dynamodb.model.ResourceInUseException
 import software.amazon.awssdk.services.kinesis.KinesisAsyncClient
-import software.amazon.awssdk.services.kinesis.model.PutRecordRequest
+import software.amazon.awssdk.services.kinesis.model.{CreateStreamRequest, CreateStreamResponse, DescribeStreamRequest, GetShardIteratorRequest, PutRecordsRequestEntry, ResourceNotFoundException, ShardIteratorType, PutRecordRequest => PutRecordRequestV2}
 
 import java.nio.charset.Charset
+import scala.Console.println
+import scala.concurrent.duration.SECONDS
 import scala.util.{Failure, Success, Try}
 
-class Publisher {
-  val kinesisClient: KinesisAsyncClient = KinesisAsyncClient.builder().build()
+object Publisher {
 
-  private def publish() = {
-    val data = SdkBytes.fromString("Order()", Charset.defaultCharset())
+  private def createStream(kinesisClient: KinesisAsyncClient, streamName: String, numAttempts: Int = 0): CreateStreamResponse = {
+    logger.info(s"Creating a new stream -> $streamName.")
+    val response = kinesisClient.createStream(
+      CreateStreamRequest.builder()
+        .streamName(streamName)
+        .shardCount(1)
+        .build())
+      .get(10, SECONDS)
 
-    val putRecordRequest: PutRecordRequest = PutRecordRequest
-      .builder()
-      .streamName("streamName")
-      .data(data)
+    val stream = kinesisClient.describeStream(DescribeStreamRequest.builder().streamName(streamName).build())
+    val streamNameDesc = stream.get.streamDescription().streamName()
+    System.setProperty("aws.cborEnabled", "false")
+    val shardId = stream.get().streamDescription().shards().get(0).shardId()
+
+    val getShardIteratorRequest = GetShardIteratorRequest.builder()
+      .streamName(streamNameDesc)
+      .shardId(shardId)
+      .shardIteratorType(ShardIteratorType.LATEST)
       .build()
 
-    Try(kinesisClient.putRecord(putRecordRequest)) match {
-      case Failure(exception) => sys.error(exception.getMessage)
-      case Success(value) => println("Publishing successful")
+    val shardIterator = kinesisClient.getShardIterator(getShardIteratorRequest).get().getValueForField("ShardIterator", classOf[String])
+    logger.info(s"getting shardIterator $shardIterator")
+    response
+  }
+
+  def publish(kinesisClient: KinesisAsyncClient, order: Order): Unit = {
+    System.setProperty(com.amazonaws.SDKGlobalConfiguration.AWS_CBOR_DISABLE_SYSTEM_PROPERTY, "true")
+    System.setProperty(SDKGlobalConfiguration.AWS_CBOR_DISABLE_SYSTEM_PROPERTY, "true")
+    System.setProperty(SdkSystemSetting.CBOR_ENABLED.property(), "false")
+    val streamName = "order-stream"
+
+    Try(kinesisClient.describeStream(DescribeStreamRequest.builder().streamName(streamName).build()).get(10, SECONDS)) match {
+      case Failure(_: ResourceNotFoundException) =>
+        createStream(kinesisClient, streamName)
+      case Failure(_: ResourceInUseException) => Thread.sleep(3000)
+      case Failure(_) => createStream(kinesisClient, streamName)
+      case Success(value) => // no-op
+        logger.info(s"getting described stream $value")
+    }
+    val orderJson = Json.toJson(order)
+    val data = Json.stringify(orderJson).getBytes("UTF-8")
+
+    val putRecordRequest: PutRecordRequestV2 = PutRecordRequestV2.builder()
+      .streamName(streamName)
+      .partitionKey("1")
+      .data(SdkBytes.fromByteArray(data))
+      .build()
+
+    Try {
+      kinesisClient.putRecord(putRecordRequest).get(10, SECONDS)
+      logger.info(s"putting records into the stream")
+
+    } match {
+      case Failure(exception) => throw exception
+      case Success(_) => logger.info(s"[${getClass.getName}] - Publishing successful")
     }
   }
 }

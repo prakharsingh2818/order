@@ -10,6 +10,7 @@ import scala.util.Try
 sealed trait PollActorMessage
 object PollActorMessage {
   final case object Poll extends PollActorMessage
+  final case object Start extends PollActorMessage
 }
 
 @Singleton
@@ -31,20 +32,22 @@ trait PollActor extends Actor with ActorLogging {
 
   override def receive: Receive = {
     case Poll =>
-      log.info("Inside receive method")
-      println("Inside receive method")
+      /*log.info("Inside receive method")
+      println("Inside receive method")*/
       safeProcessMessage()
+
+    case Start => // no-op
   }
 
   private def safeProcessMessage(): Unit = {
     Try {
-      log.info("Inside safeProcessMessage method")
-      println("Inside safeProcessMessage method")
+      /*log.info("Inside safeProcessMessage method")
+      println("Inside safeProcessMessage method")*/
       processRecord()
     }.recover {
       case ex =>
-        log.info("Discontinuing with safeProcessMessage method")
-        println("Discontinuing with safeProcessMessage method")
+        /*log.info("Discontinuing with safeProcessMessage method")
+        println("Discontinuing with safeProcessMessage method")*/
         log.error(cause = ex, message = "Error processing messages")
     }
   }

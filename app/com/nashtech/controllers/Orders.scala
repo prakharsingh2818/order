@@ -21,10 +21,6 @@ class Orders @Inject()(
     }
   }
 
-  def index: Action[AnyContent] = Action {
-    Ok("Hello World")
-  }
-
   override def getAll(request: Request[AnyContent], merchantId: String): Future[GetAll] = {
     service.getAllOrder(merchantId) match {
       case Left(_) => Future.successful(GetAll.HTTP404)

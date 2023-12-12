@@ -25,14 +25,14 @@ abstract class DBPollActor(schema: String = "public", table: String) extends Pol
   startPolling()
 
   override def preStart(): Unit = {
-    log.info("[DBPollActor] Pre-Start")
-    println("[DBPollActor] Pre-Start")
+    /*log.info("[DBPollActor] Pre-Start")
+    println("[DBPollActor] Pre-Start")*/
   }
 
   def process(record: ProcessQueueOrder): Try[Unit]
 
   override def processRecord(): Unit = {
-    log.info("Inside processRecord method")
+    // log.info("Inside processRecord method")
     val record = getEarliestRecord(processingTable)
     safeProcessRecord(record)
 
@@ -40,19 +40,19 @@ abstract class DBPollActor(schema: String = "public", table: String) extends Pol
 
   def safeProcessRecord(record: ProcessQueueOrder) = {
     Try {
-      log.info("Inside safeProcessRecord method")
-      println("Inside safeProcessRecord method")
+      /*log.info("Inside safeProcessRecord method")
+      println("Inside safeProcessRecord method")*/
       process(record)
     } match {
       case Success(_) =>
-        log.info("Continuing with safeProcessRecord method")
-        println("Continuing with safeProcessRecord method")
+        /*log.info("Continuing with safeProcessRecord method")
+        println("Continuing with safeProcessRecord method")*/
         deleteProcessingQueueRecord(record.processingQueueId)
         insertJournalRecord(record)
 
       case Failure(ex) =>
-        log.info("Discontinuing with safeProcessRecord method")
-        println("Discontinuing with safeProcessRecord method" + ex.getMessage)
+        /*log.info("Discontinuing with safeProcessRecord method")
+        println("Discontinuing with safeProcessRecord method" + ex.getMessage)*/
         setErrors(record.processingQueueId, ex)
     }
   }

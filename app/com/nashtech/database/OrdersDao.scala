@@ -62,7 +62,7 @@ class OrdersDao @Inject()(db: Database) {
     }
   }
 
-  object BaseQuery {
+  private object BaseQuery {
 
     def selectAllQuery(merchantId: String): String = {
       val query =

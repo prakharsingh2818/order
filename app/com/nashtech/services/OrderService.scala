@@ -2,9 +2,14 @@ package com.nashtech.services
 
 import akka.actor.ActorRef
 import com.google.inject.ImplementedBy
+import com.nashtech.Publisher
 import com.nashtech.database.OrdersDao
 import com.nashtech.order.v1.models.{Order, OrderForm}
-import org.joda.time.DateTime
+import play.api.Configuration
+import software.amazon.awssdk.auth.credentials.{AwsBasicCredentials, StaticCredentialsProvider}
+import software.amazon.awssdk.http.nio.netty.NettyNioAsyncHttpClient
+import software.amazon.awssdk.regions.Region
+import software.amazon.awssdk.services.kinesis.KinesisAsyncClient
 
 import javax.inject.{Inject, Named, Singleton}
 import scala.concurrent.Future
@@ -26,13 +31,27 @@ trait OrderService {
 }
 
 @Singleton
-class OrderServiceImpl @Inject()(@Named("order-journal-actor") orderActor: ActorRef, dao: OrdersDao) extends OrderService {
+class OrderServiceImpl @Inject()(@Named("order-journal-actor") orderActor: ActorRef,  dao: OrdersDao, config: Configuration) extends OrderService {
 
   override def getByNumber(merchantId: String, number: String): Either[Seq[String], Order] = {
-
     Try(dao.getByNumber(merchantId, number)) match {
       case Failure(exception) => Left(Seq(exception.getMessage))
-      case Success(value) => Right(value)
+      case Success(order) => // orderActor ! "Insert"
+        if (true) {
+          val credentials = AwsBasicCredentials.create("test", "test")
+
+          val credentialsProvider = StaticCredentialsProvider.create(credentials)
+
+          val kinesisClient: KinesisAsyncClient = KinesisAsyncClient.builder()
+            .region(Region.US_EAST_1)
+            .credentialsProvider(credentialsProvider)
+            .endpointOverride(new java.net.URI("http://localhost:4566"))
+            .httpClient(NettyNioAsyncHttpClient.builder().build())
+            .build()
+
+          Publisher.publish(kinesisClient, order)
+        }
+        Right(order)
     }
   }
 
@@ -43,8 +62,8 @@ class OrderServiceImpl @Inject()(@Named("order-journal-actor") orderActor: Actor
     }
   }
 
-  override def createOrder(orderform: OrderForm): Either[String, Order] = {
-    Try(dao.createOrder(orderform)) match {
+  override def createOrder(orderForm: OrderForm): Either[String, Order] = {
+    Try(dao.createOrder(orderForm)) match {
       case Success(value) => Right(value)
       case Failure(exception) => Left(exception.getMessage)
     }
