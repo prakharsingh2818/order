@@ -77,7 +77,7 @@ abstract class DBPollActor(schema: String = "public", table: String) extends Pol
     }
   }
 
-  private def baseQuery =
+  private val baseQuery =
     s"""
        |select
        |processing_queue_id,
@@ -92,12 +92,12 @@ abstract class DBPollActor(schema: String = "public", table: String) extends Pol
        |order by created_at asc limit 1
        |""".stripMargin
 
-  private def deleteQuery(id: Int) =
+  private def deleteQuery(id: Int): String =
     s"""
        |delete from ${processingTable} where processing_queue_id = $id
        |""".stripMargin
 
-  private def insertQuery(record: ProcessQueueOrder) =
+  private def insertQuery(record: ProcessQueueOrder): String =
     s"""
        |insert into $journalTable (
        |processing_queue_id,
@@ -119,7 +119,7 @@ abstract class DBPollActor(schema: String = "public", table: String) extends Pol
        |  )
        |""".stripMargin
 
-  private def setErrorsQuery(id: Int, ex: Throwable) = {
+  private def setErrorsQuery(id: Int, ex: Throwable): String = {
     s"""
        |update $processingTable set error_message = '${ex.getMessage}' where processing_queue_id = $id
        |""".stripMargin
