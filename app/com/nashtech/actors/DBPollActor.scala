@@ -6,7 +6,21 @@ import play.api.db.Database
 
 import scala.util.{Failure, Success, Try}
 
+case class ProcessQueueOrder(
+                              processingQueueId: Int,
+                              id: String,
+                              number: String,
+                              merchantId: String,
+                              total: Double,
+                              submittedAt: DateTime,
+                              createdAt: DateTime,
+                              updatedAt: DateTime,
+                              operation: String
+                            )
+
 abstract class DBPollActor(schema: String = "public", table: String) extends PollActor {
+
+  import DBPollActor._
 
   def db: Database
 
@@ -37,7 +51,7 @@ abstract class DBPollActor(schema: String = "public", table: String) extends Pol
 
   }
 
-  private def safeProcessRecord(record: ProcessQueueOrder) = {
+  private def safeProcessRecord(record: ProcessQueueOrder): Unit = {
     Try {
       log.info("Inside safeProcessRecord method")
       process(record)
@@ -53,31 +67,34 @@ abstract class DBPollActor(schema: String = "public", table: String) extends Pol
     }
   }
 
-  private def deleteProcessingQueueRecord(id: Int) = {
+  private def deleteProcessingQueueRecord(id: Int): Int = {
     db.withConnection { implicit connection =>
-      SQL(deleteQuery(id)).executeUpdate()
+      SQL(deleteQuery(id, processingTable)).executeUpdate()
     }
   }
 
-  private def insertJournalRecord(record: ProcessQueueOrder) = {
+  private def insertJournalRecord(record: ProcessQueueOrder): Unit = {
     db.withConnection { implicit connection =>
-      SQL(insertQuery(record)).executeInsert()
+      SQL(insertQuery(record, journalTable)).executeInsert()
     }
   }
 
-  private def setErrors(processingQueueId: Int, throwable: Throwable) = {
+  private def setErrors(processingQueueId: Int, throwable: Throwable): Int = {
     db.withConnection { implicit connection =>
-      SQL(setErrorsQuery(processingQueueId, throwable)).executeUpdate()
+      SQL(setErrorsQuery(processingQueueId, throwable, processingTable)).executeUpdate()
     }
   }
 
   private def getEarliestRecord(processingTable: String): ProcessQueueOrder = {
     db.withConnection { implicit connection =>
-      SQL(baseQuery).as(processingQueueOrderParser().single)
+      SQL(baseQuery(processingTable)).as(processingQueueOrderParser().single)
     }
   }
+}
 
-  private val baseQuery =
+object  DBPollActor {
+
+  private def baseQuery(processingTable: String): String =
     s"""
        |select
        |processing_queue_id,
@@ -92,12 +109,12 @@ abstract class DBPollActor(schema: String = "public", table: String) extends Pol
        |order by created_at asc limit 1
        |""".stripMargin
 
-  private def deleteQuery(id: Int): String =
+  private def deleteQuery(id: Int, processingTable: String): String =
     s"""
        |delete from ${processingTable} where processing_queue_id = $id
        |""".stripMargin
 
-  private def insertQuery(record: ProcessQueueOrder): String =
+  private def insertQuery(record: ProcessQueueOrder, journalTable: String): String =
     s"""
        |insert into $journalTable (
        |processing_queue_id,
@@ -119,7 +136,7 @@ abstract class DBPollActor(schema: String = "public", table: String) extends Pol
        |  )
        |""".stripMargin
 
-  private def setErrorsQuery(id: Int, ex: Throwable): String = {
+  private def setErrorsQuery(id: Int, ex: Throwable, processingTable: String): String = {
     s"""
        |update $processingTable set error_message = '${ex.getMessage}' where processing_queue_id = $id
        |""".stripMargin
@@ -143,15 +160,3 @@ abstract class DBPollActor(schema: String = "public", table: String) extends Pol
     }
   }
 }
-
-case class ProcessQueueOrder(
-    processingQueueId: Int,
-    id: String,
-    number: String,
-    merchantId: String,
-    total: Double,
-    submittedAt: DateTime,
-    createdAt: DateTime,
-    updatedAt: DateTime,
-    operation: String
-  )
