@@ -1,6 +1,6 @@
 package com.nashtech.actors
 
-import akka.actor.ActorSystem
+import akka.actor.{ActorSystem, Cancellable}
 import play.api.db.Database
 
 import javax.inject.{Inject, Singleton}
@@ -9,7 +9,7 @@ import scala.util.{Success, Try}
 
 @Singleton
 class OrderJournalActor @Inject()(system: ActorSystem, override val db: Database)
-extends DBPollActor(table = "orders") {
+  extends DBPollActor(table = "orders") {
 
   override def preStart(): Unit = {
     // super.preStart()
@@ -19,19 +19,17 @@ extends DBPollActor(table = "orders") {
     startPolling()
   }
 
-  def schedule() = {
+  def schedule(): Cancellable = {
     system.scheduler.scheduleWithFixedDelay(FiniteDuration(5, SECONDS), delay, self, "Inser")(system.dispatcher)
   }
 
   override def process(record: ProcessQueueOrder): Try[Unit] = {
     record.operation match {
       case "INSERT" | "UPDATE" => // TODO: Publish using kinesis
-        /*log.info("Inside OrderJournalActor")
-        println("OrderJournalActor running ====" + record)*/
+        log.info("Inside OrderJournalActor")
         throw new ArithmeticException("Exception Occur")
-
       case "DELETE" =>
-        println("Inside DELETE operation")
+        log.info("Inside DELETE operation")
         Success(())
     }
   }
