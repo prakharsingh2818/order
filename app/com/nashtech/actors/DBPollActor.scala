@@ -92,7 +92,7 @@ abstract class DBPollActor(schema: String = "public", table: String) extends Pol
   }
 }
 
-object DBPollActor {
+object  DBPollActor {
 
   private def baseQuery(processingTable: String): String =
     s"""
