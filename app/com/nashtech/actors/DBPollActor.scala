@@ -7,16 +7,16 @@ import play.api.db.Database
 import scala.util.{Failure, Success, Try}
 
 case class ProcessQueueOrder(
-                              processingQueueId: Int,
-                              id: String,
-                              number: String,
-                              merchantId: String,
-                              total: Double,
-                              submittedAt: DateTime,
-                              createdAt: DateTime,
-                              updatedAt: DateTime,
-                              operation: String
-                            )
+      processingQueueId: Int,
+      id: String,
+      number: String,
+      merchantId: String,
+      total: Double,
+      submittedAt: DateTime,
+      createdAt: DateTime,
+      updatedAt: DateTime,
+      operation: String
+    )
 
 abstract class DBPollActor(schema: String = "public", table: String) extends PollActor {
 
@@ -42,10 +42,10 @@ abstract class DBPollActor(schema: String = "public", table: String) extends Pol
     log.info("[DBPollActor] Pre-Start")
   }
 
-  def process(record: ProcessQueueOrder): Try[Unit]
+  def process(record: ProcessQueueOrder): Unit
 
   override def processRecord(): Unit = {
-    log.info("Inside processRecord method")
+    println("Inside processRecord method")
     val record = getEarliestRecord(processingTable)
     safeProcessRecord(record)
 
@@ -53,16 +53,16 @@ abstract class DBPollActor(schema: String = "public", table: String) extends Pol
 
   private def safeProcessRecord(record: ProcessQueueOrder): Unit = {
     Try {
-      log.info("Inside safeProcessRecord method")
+      println("Inside safeProcessRecord method")
       process(record)
     } match {
       case Success(_) =>
-        log.info("Continuing with safeProcessRecord method")
+        println("Continuing with safeProcessRecord method")
         deleteProcessingQueueRecord(record.processingQueueId)
         insertJournalRecord(record)
 
       case Failure(ex) =>
-        log.info("Discontinuing with safeProcessRecord method")
+        println("Discontinuing with safeProcessRecord method")
         setErrors(record.processingQueueId, ex)
     }
   }

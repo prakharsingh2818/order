@@ -20,7 +20,8 @@ import scala.util.{Failure, Success, Try}
 object Publisher {
 
   private def createStream(kinesisClient: KinesisAsyncClient, streamName: String, numAttempts: Int = 0): CreateStreamResponse = {
-    logger.info(s"Creating a new stream -> $streamName.")
+    println(s"Creating a new stream -> $streamName.")
+
     val response = kinesisClient.createStream(
       CreateStreamRequest.builder()
         .streamName(streamName)

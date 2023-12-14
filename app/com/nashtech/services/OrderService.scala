@@ -31,27 +31,12 @@ trait OrderService {
 }
 
 @Singleton
-class OrderServiceImpl @Inject()(@Named("order-journal-actor") orderActor: ActorRef,  dao: OrdersDao, config: Configuration) extends OrderService {
+class OrderServiceImpl @Inject()(dao: OrdersDao) extends OrderService {
 
   override def getByNumber(merchantId: String, number: String): Either[Seq[String], Order] = {
     Try(dao.getByNumber(merchantId, number)) match {
       case Failure(exception) => Left(Seq(exception.getMessage))
-      case Success(order) => // orderActor ! "Insert"
-        if (true) {
-          val credentials = AwsBasicCredentials.create("test", "test")
-
-          val credentialsProvider = StaticCredentialsProvider.create(credentials)
-
-          val kinesisClient: KinesisAsyncClient = KinesisAsyncClient.builder()
-            .region(Region.US_EAST_1)
-            .credentialsProvider(credentialsProvider)
-            .endpointOverride(new java.net.URI("http://localhost:4566"))
-            .httpClient(NettyNioAsyncHttpClient.builder().build())
-            .build()
-
-          Publisher.publish(kinesisClient, order)
-        }
-        Right(order)
+      case Success(order) => Right(order)
     }
   }
 
