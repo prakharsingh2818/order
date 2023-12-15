@@ -1,6 +1,8 @@
 package com.nashtech.actors
 
 import anorm.{RowParser, SQL, SqlParser, ~}
+import com.nashtech.order.v1.Orders
+import com.nashtech.order.v1.models.Order
 import org.joda.time.DateTime
 import play.api.db.Database
 
@@ -8,11 +10,7 @@ import scala.util.{Failure, Success, Try}
 
 case class ProcessQueueOrder(
       processingQueueId: Int,
-      id: String,
-      number: String,
-      merchantId: String,
-      total: Double,
-      submittedAt: DateTime,
+      order: Order,
       createdAt: DateTime,
       updatedAt: DateTime,
       operation: String
@@ -128,9 +126,9 @@ object  DBPollActor {
        |)
        |values
        |  (
-       |    '${record.processingQueueId}', '${record.id}',
-       |    '${record.number}', '${record.merchantId}',
-       |    ${record.total}, '${record.submittedAt}',
+       |    '${record.processingQueueId}', '${record.order.id}',
+       |    '${record.order.number}', '${record.order.merchantId}',
+       |    ${record.order.total}, '${record.order.submittedAt}',
        |    '${record.createdAt}', '${record.updatedAt}',
        |    '${record.operation}'
        |  )
@@ -155,7 +153,7 @@ object  DBPollActor {
 
       case processingQueueId ~ id ~ number ~ merchantId ~ total ~ submittedAt ~ createdAt ~ updatedAt ~ operation =>
         ProcessQueueOrder(
-          processingQueueId, id, number, merchantId, total, submittedAt, createdAt, updatedAt, operation
+          processingQueueId, Order(id, number, merchantId, submittedAt, total), createdAt, updatedAt, operation
         )
     }
   }
