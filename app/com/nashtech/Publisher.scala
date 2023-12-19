@@ -3,9 +3,10 @@ package com.nashtech
 import com.amazonaws.SDKGlobalConfiguration
 import com.amazonaws.services.kinesis.AmazonKinesis
 import com.typesafe.scalalogging.LazyLogging
+import play.api.i18n.Lang.logger
 import com.nashtech.order.v1.models.Order
 import com.nashtech.order.v1.models.json._
-import play.api.libs.Files.logger
+
 import play.api.libs.json.Json
 import software.amazon.awssdk.auth.credentials.{AwsBasicCredentials, StaticCredentialsProvider}
 import software.amazon.awssdk.core.{SdkBytes, SdkSystemSetting}
@@ -23,7 +24,7 @@ import scala.util.{Failure, Success, Try}
 object Publisher {
 
   private def createStream(kinesisClient: KinesisAsyncClient, streamName: String, numAttempts: Int = 0): CreateStreamResponse = {
-    println(s"Creating a new stream -> $streamName.")
+    logger.info(s"Creating a new stream -> $streamName.")
 
     val response = kinesisClient.createStream(
       CreateStreamRequest.builder()
