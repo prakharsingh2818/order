@@ -3,6 +3,7 @@ package com.nashtech.actors
 import akka.actor.{ActorSystem, Cancellable}
 import com.nashtech.Publisher
 import play.api.db.Database
+import play.api.i18n.Lang.logger
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.duration.{FiniteDuration, SECONDS}
@@ -13,7 +14,7 @@ class OrderJournalActor @Inject()(system: ActorSystem, override val db: Database
   extends DBPollActor(table = "orders") {
 
   override def preStart(): Unit = {
-    println("[OrderJournalActor] Inside preStart")
+    logger.info("[OrderJournalActor] Inside preStart")
     startPolling()
   }
 
@@ -26,8 +27,7 @@ class OrderJournalActor @Inject()(system: ActorSystem, override val db: Database
       case "INSERT" | "UPDATE" =>
 //        throw new ArithmeticException("Exception Occur")
         Publisher.publish(record.order)
-
-        println("Inside OrderJournalActor")
+        logger.info("Inside OrderJournalActor")
       case "DELETE" =>
         log.info("Inside DELETE operation")
         Success(())
