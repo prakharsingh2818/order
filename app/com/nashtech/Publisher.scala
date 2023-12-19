@@ -1,12 +1,9 @@
 package com.nashtech
 
 import com.amazonaws.SDKGlobalConfiguration
-import com.amazonaws.services.kinesis.AmazonKinesis
-import com.typesafe.scalalogging.LazyLogging
-import play.api.i18n.Lang.logger
 import com.nashtech.order.v1.models.Order
 import com.nashtech.order.v1.models.json._
-
+import play.api.i18n.Lang.logger
 import play.api.libs.json.Json
 import software.amazon.awssdk.auth.credentials.{AwsBasicCredentials, StaticCredentialsProvider}
 import software.amazon.awssdk.core.{SdkBytes, SdkSystemSetting}
@@ -14,10 +11,8 @@ import software.amazon.awssdk.http.nio.netty.NettyNioAsyncHttpClient
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.dynamodb.model.ResourceInUseException
 import software.amazon.awssdk.services.kinesis.KinesisAsyncClient
-import software.amazon.awssdk.services.kinesis.model.{CreateStreamRequest, CreateStreamResponse, DescribeStreamRequest, GetShardIteratorRequest, PutRecordsRequestEntry, ResourceNotFoundException, ShardIteratorType, PutRecordRequest => PutRecordRequestV2}
+import software.amazon.awssdk.services.kinesis.model.{CreateStreamRequest, CreateStreamResponse, DescribeStreamRequest, GetShardIteratorRequest, ResourceNotFoundException, ShardIteratorType, PutRecordRequest => PutRecordRequestV2}
 
-import java.nio.charset.Charset
-import scala.Console.println
 import scala.concurrent.duration.SECONDS
 import scala.util.{Failure, Success, Try}
 
