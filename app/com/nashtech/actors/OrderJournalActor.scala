@@ -26,8 +26,9 @@ class OrderJournalActor @Inject()(system: ActorSystem, override val db: Database
     record.operation match {
       case "INSERT" | "UPDATE" =>
 //        throw new ArithmeticException("Exception Occur")
+        logger.info("Inside OrderJournalActor before publishing")
         Publisher.publish(record.order)
-        logger.info("Inside OrderJournalActor")
+        logger.info("Inside OrderJournalActor after publishing")
       case "DELETE" =>
         log.info("Inside DELETE operation")
         Success(())

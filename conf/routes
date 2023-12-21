@@ -2,9 +2,7 @@
 # Service version: 1.0.1
 # apibuilder app.apibuilder.io/nashtech/order/latest/play_2_x_routes
 
-
 GET        /:merchant_id/orders/:number     com.nashtech.controllers.Orders.getByNumber(merchant_id: String, number: String)
-GET        /:merchant_id/orders/all         com.nashtech.controllers.Orders.getAll(merchant_id: String)
 POST       /:merchant_id/orders             com.nashtech.controllers.Orders.post(merchant_id: String)
-PUT        /:merchant_id/orders             com.nashtech.controllers.Orders.put(merchant_id: String)
+PUT        /:merchant_id/orders/:number     com.nashtech.controllers.Orders.putByNumber(merchant_id: String, number: String)
 DELETE     /:merchant_id/orders             com.nashtech.controllers.Orders.delete(merchant_id: String)

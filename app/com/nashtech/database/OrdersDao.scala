@@ -16,15 +16,15 @@ class OrdersDao @Inject()(db: Database) {
     }
   }
 
-  def getAllOrder(merchantId: String): Seq[Order] = {
-    db.withConnection { implicit connection =>
-      SQL(BaseQuery.selectAllQuery(merchantId)).as(OrderParser().*)
-    }
-  }
+//  def getAllOrder(merchantId: String): Seq[Order] = {
+//    db.withConnection { implicit connection =>
+//      SQL(BaseQuery.selectAllQuery(merchantId)).as(OrderParser().*)
+//    }
+//  }
 
-  def createOrder(orderForm: OrderForm): Order = {
+  def createOrder(orderForm: OrderForm, merchantId: String): Order = {
     db.withConnection { implicit connection =>
-      SQL(BaseQuery.insertQuery(orderForm)).as(OrderParser().single)
+      SQL(BaseQuery.insertQuery(orderForm, merchantId)).as(OrderParser().single)
     }
   }
 
@@ -34,9 +34,9 @@ class OrdersDao @Inject()(db: Database) {
     }
   }
 
-  def updateOrderById(merchantId: String, orderForm: OrderForm): Order = {
+  def updateOrderById(merchantId: String, orderForm: OrderForm, number: String): Order = {
     db.withConnection { implicit connection =>
-      SQL(BaseQuery.updateQuery(orderForm, merchantId)).as(OrderParser().single)
+      SQL(BaseQuery.updateQuery(orderForm, merchantId, number)).as(OrderParser().single)
     }
   }
 
@@ -94,7 +94,7 @@ class OrdersDao @Inject()(db: Database) {
       query
     }
 
-    def insertQuery(orderForm: OrderForm): String = {
+    def insertQuery(orderForm: OrderForm, merchantId: String): String = {
       val orderId = generateOrderId()
       val orderNumber = generateOrderNumber()
       val query =
@@ -111,7 +111,7 @@ class OrdersDao @Inject()(db: Database) {
            |(
            |'$orderId',
            |'$orderNumber',
-           |'${orderForm.merchantId}',
+           |'${merchantId}',
            |'${DateTime.now()}',
            |${orderForm.total}
            |)
@@ -130,13 +130,12 @@ class OrdersDao @Inject()(db: Database) {
       query
     }
 
-    def updateQuery(orderForm: OrderForm, merchantId: String): String = {
+    def updateQuery(orderForm: OrderForm, merchantId: String, number: String): String = {
       val query =
         s"""
            |UPDATE Orders
-           |SET merchant_id = '${orderForm.merchantId}',
-           |total = ${orderForm.total}
-           |WHERE merchant_id = '$merchantId'
+           |SET total = '${orderForm.total}'
+           |WHERE merchant_id = '$merchantId' AND number = '$number'
            |RETURNING *
            |""".stripMargin
       query

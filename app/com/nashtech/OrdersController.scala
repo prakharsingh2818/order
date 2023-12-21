@@ -33,28 +33,6 @@ trait OrdersController extends play.api.mvc.BaseController {
         }(defaultExecutionContext)
     }
 
-  sealed trait GetAll extends Product with Serializable
-  object GetAll {
-    final case class HTTP200(body: Seq[com.nashtech.order.v1.models.Order]) extends GetAll
-    case object HTTP401 extends GetAll
-    case object HTTP404 extends GetAll
-    final case class Undocumented(result: play.api.mvc.Result) extends GetAll
-  }
-
-  def getAll(
-              request: play.api.mvc.Request[play.api.mvc.AnyContent],
-              merchantId: String
-            ): scala.concurrent.Future[GetAll]
-  final def getAll(merchantId: String): play.api.mvc.Action[play.api.mvc.AnyContent] = Action.async { request =>
-    getAll(request, merchantId)
-      .map {
-        case r: GetAll.HTTP200      => Status(200)(play.api.libs.json.Json.toJson(r.body))
-        case GetAll.HTTP401         => Status(401)(play.api.mvc.Results.EmptyContent())
-        case GetAll.HTTP404         => Status(404)(play.api.mvc.Results.EmptyContent())
-        case r: GetAll.Undocumented => r.result
-      }(defaultExecutionContext)
-  }
-
   sealed trait Post extends Product with Serializable
   object Post {
     final case class HTTP200(body: com.nashtech.order.v1.models.Order) extends Post
@@ -81,29 +59,33 @@ trait OrdersController extends play.api.mvc.BaseController {
         }(defaultExecutionContext)
     }
 
-  sealed trait Put extends Product with Serializable
-  object Put {
-    final case class HTTP200(body: com.nashtech.order.v1.models.Order) extends Put
-    case object HTTP401 extends Put
-    case object HTTP404 extends Put
-    final case class HTTP422(body: com.nashtech.order.v1.models.Error) extends Put
-    final case class Undocumented(result: play.api.mvc.Result) extends Put
+  sealed trait PutByNumber extends Product with Serializable
+  object PutByNumber {
+    final case class HTTP200(body: com.nashtech.order.v1.models.Order) extends PutByNumber
+    case object HTTP401 extends PutByNumber
+    case object HTTP404 extends PutByNumber
+    final case class HTTP422(body: com.nashtech.order.v1.models.Error) extends PutByNumber
+    final case class Undocumented(result: play.api.mvc.Result) extends PutByNumber
   }
 
-  def put(
-           request: play.api.mvc.Request[com.nashtech.order.v1.models.OrderForm],
-           merchantId: String,
-           body: com.nashtech.order.v1.models.OrderForm
-         ): scala.concurrent.Future[Put]
-  final def put(merchantId: String): play.api.mvc.Action[com.nashtech.order.v1.models.OrderForm] =
+  def putByNumber(
+                   request: play.api.mvc.Request[com.nashtech.order.v1.models.OrderForm],
+                   merchantId: String,
+                   number: String,
+                   body: com.nashtech.order.v1.models.OrderForm
+                 ): scala.concurrent.Future[PutByNumber]
+  final def putByNumber(
+                         merchantId: String,
+                         number: String
+                       ): play.api.mvc.Action[com.nashtech.order.v1.models.OrderForm] =
     Action.async(parse.json[com.nashtech.order.v1.models.OrderForm]) { request =>
-      put(request, merchantId, request.body)
+      putByNumber(request, merchantId, number, request.body)
         .map {
-          case r: Put.HTTP200      => Status(200)(play.api.libs.json.Json.toJson(r.body))
-          case Put.HTTP401         => Status(401)(play.api.mvc.Results.EmptyContent())
-          case Put.HTTP404         => Status(404)(play.api.mvc.Results.EmptyContent())
-          case r: Put.HTTP422      => Status(422)(play.api.libs.json.Json.toJson(r.body))
-          case r: Put.Undocumented => r.result
+          case r: PutByNumber.HTTP200      => Status(200)(play.api.libs.json.Json.toJson(r.body))
+          case PutByNumber.HTTP401         => Status(401)(play.api.mvc.Results.EmptyContent())
+          case PutByNumber.HTTP404         => Status(404)(play.api.mvc.Results.EmptyContent())
+          case r: PutByNumber.HTTP422      => Status(422)(play.api.libs.json.Json.toJson(r.body))
+          case r: PutByNumber.Undocumented => r.result
         }(defaultExecutionContext)
     }
 

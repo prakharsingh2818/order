@@ -9,8 +9,6 @@ package com.nashtech.order.v1.anorm.parsers {
 
   import com.nashtech.order.v1.anorm.conversions.Standard._
 
-  import com.nashtech.order.v1.anorm.conversions.Types._
-
   object Error {
 
     def parserWithPrefix(prefix: String, sep: String = "_"): RowParser[com.nashtech.order.v1.models.Error] = parser(prefixOpt = Some(s"$prefix$sep"))
@@ -69,15 +67,12 @@ package com.nashtech.order.v1.anorm.parsers {
     def parserWithPrefix(prefix: String, sep: String = "_"): RowParser[com.nashtech.order.v1.models.OrderForm] = parser(prefixOpt = Some(s"$prefix$sep"))
 
     def parser(
-      merchantId: String = "merchant_id",
       total: String = "total",
       prefixOpt: Option[String] = None
     ): RowParser[com.nashtech.order.v1.models.OrderForm] = {
-      SqlParser.str(prefixOpt.getOrElse("") + merchantId) ~
       SqlParser.get[BigDecimal](prefixOpt.getOrElse("") + total) map {
-        case merchantId ~ total => {
+        case total => {
           com.nashtech.order.v1.models.OrderForm(
-            merchantId = merchantId,
             total = total
           )
         }

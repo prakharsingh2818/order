@@ -136,7 +136,7 @@ object  DBPollActor {
 
   private def setErrorsQuery(id: Int, ex: Throwable, processingTable: String): String = {
     s"""
-       |update $processingTable set error_message = '${ex.getMessage}' where processing_queue_id = $id
+       |update $processingTable set error = '${ex.getStackTrace.mkString("\n")}', error_message = '${ex.getMessage}' where processing_queue_id = $id
        |""".stripMargin
   }
 
