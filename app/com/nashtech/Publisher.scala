@@ -62,13 +62,20 @@ object Publisher {
 
     val streamName = "order-stream"
 
+    logger.info("Before describing the stream")
+//    try {
+//      val result = kinesisClient.describeStream(DescribeStreamRequest.builder().streamName(streamName).build()).get(10, SECONDS)
+//      logger.info(s"getting described stream $result")
+//    } catch {
+//      case _: ResourceNotFoundException => createStream(kinesisClient, streamName)
+//      case _: ResourceInUseException => Thread.sleep(3000)
+//    }
+
     Try(kinesisClient.describeStream(DescribeStreamRequest.builder().streamName(streamName).build()).get(10, SECONDS)) match {
-      case Failure(_: ResourceNotFoundException) =>
-        createStream(kinesisClient, streamName)
+      case Failure(_: ResourceNotFoundException) => createStream(kinesisClient, streamName)
       case Failure(_: ResourceInUseException) => Thread.sleep(3000)
       case Failure(_) => createStream(kinesisClient, streamName)
-      case Success(value) => // no-op
-        logger.info(s"getting described stream $value")
+      case Success(value) => logger.info(s"getting described stream $value")
     }
 
     val orderJson = Json.toJson(order)
