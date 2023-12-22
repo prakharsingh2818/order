@@ -21,13 +21,10 @@ trait OrderService {
 
   def createOrder(order: OrderForm, merchantId: String): Either[String, Order]
 
-//  def getAllOrder(merchantId: String): Either[Seq[String], Seq[Order]]
-
-  def updateOrder(merchantId: String, updatedOrder: OrderForm, number: String): Either[String, Order]
+  def updateOrderByNumber(merchantId: String, updatedOrder: OrderForm, number: String): Either[String, Order]
 
   def deleteAllByMerchantId(merchantId: String): Either[String, Seq[Order]]
 
-//  def deleteAll(): Future[String]
 }
 
 @Singleton
@@ -40,13 +37,6 @@ class OrderServiceImpl @Inject()(dao: OrdersDao) extends OrderService {
     }
   }
 
-//  override def getAllOrder(merchantId: String): Either[Seq[String], Seq[Order]] = {
-//    Try(dao.getAllOrder(merchantId)) match {
-//      case Failure(exception) => Left(Seq(exception.getMessage))
-//      case Success(value) => Right(value)
-//    }
-//  }
-
   override def createOrder(orderForm: OrderForm, merchantId: String): Either[String, Order] = {
     Try(dao.createOrder(orderForm, merchantId)) match {
       case Success(value) => Right(value)
@@ -55,8 +45,8 @@ class OrderServiceImpl @Inject()(dao: OrdersDao) extends OrderService {
 
   }
 
-  override def updateOrder(merchantId: String, updatedOrder: OrderForm, number: String): Either[String, Order] = {
-    Try(dao.updateOrderById(merchantId, updatedOrder, number)) match {
+  override def updateOrderByNumber(merchantId: String, updatedOrder: OrderForm, number: String): Either[String, Order] = {
+    Try(dao.updateOrderByNumber(merchantId, updatedOrder, number)) match {
       case Success(value) => Right(value)
       case Failure(exception) => Left(exception.getMessage)
     }

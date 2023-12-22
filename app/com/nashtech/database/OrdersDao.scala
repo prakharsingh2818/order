@@ -16,12 +16,6 @@ class OrdersDao @Inject()(db: Database) {
     }
   }
 
-//  def getAllOrder(merchantId: String): Seq[Order] = {
-//    db.withConnection { implicit connection =>
-//      SQL(BaseQuery.selectAllQuery(merchantId)).as(OrderParser().*)
-//    }
-//  }
-
   def createOrder(orderForm: OrderForm, merchantId: String): Order = {
     db.withConnection { implicit connection =>
       SQL(BaseQuery.insertQuery(orderForm, merchantId)).as(OrderParser().single)
@@ -34,7 +28,7 @@ class OrdersDao @Inject()(db: Database) {
     }
   }
 
-  def updateOrderById(merchantId: String, orderForm: OrderForm, number: String): Order = {
+  def updateOrderByNumber(merchantId: String, orderForm: OrderForm, number: String): Order = {
     db.withConnection { implicit connection =>
       SQL(BaseQuery.updateQuery(orderForm, merchantId, number)).as(OrderParser().single)
     }

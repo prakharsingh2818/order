@@ -21,14 +21,6 @@ class Orders @Inject()(
     }
   }
 
-//  override def getAll(request: Request[AnyContent], merchantId: String): Future[GetAll] = {
-//    service.getAllOrder(merchantId) match {
-//      case Left(_) => Future.successful(GetAll.HTTP404)
-//      case Right(orders) => Future.successful(GetAll.HTTP200(orders))
-//
-//    }
-//  }
-
   override def post(request: Request[OrderForm], merchantId: String, body: OrderForm): Future[Post] = {
     service.createOrder(body, merchantId) match {
       case Left(_) => Future.successful(Post.HTTP404)
@@ -37,10 +29,10 @@ class Orders @Inject()(
   }
 
   override def putByNumber(request: play.api.mvc.Request[com.nashtech.order.v1.models.OrderForm],
-                           merchantId: String,
-                           number: String,
-                           body: com.nashtech.order.v1.models.OrderForm): Future[PutByNumber] = {
-    service.updateOrder(merchantId, body, number) match {
+     merchantId: String,
+     number: String,
+     body: com.nashtech.order.v1.models.OrderForm): Future[PutByNumber] = {
+    service.updateOrderByNumber(merchantId, body, number) match {
       case Left(_) => Future.successful(PutByNumber.HTTP404)
       case Right(order: Order) => Future.successful(PutByNumber.HTTP200(order))
     }
