@@ -1,4 +1,4 @@
-package com.nashtech.actors
+package actors
 
 import akka.actor.{ActorRef, ActorSystem, Props}
 import com.google.inject.AbstractModule

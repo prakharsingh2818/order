@@ -1,4 +1,4 @@
-package com.nashtech.actors
+package actors
 
 import com.google.inject.AbstractModule
 

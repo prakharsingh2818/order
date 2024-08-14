@@ -1,4 +1,4 @@
-package com.nashtech
+package actors
 
 import com.amazonaws.SDKGlobalConfiguration
 import com.nashtech.order.v1.models.Order
