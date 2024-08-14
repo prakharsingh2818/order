@@ -1,4 +1,4 @@
-package com.nashtech.actors
+package actors
 
 import anorm.{RowParser, SQL, SqlParser, ~}
 import com.nashtech.order.v1.models.Order

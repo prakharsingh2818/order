@@ -1,7 +1,6 @@
-package com.nashtech.actors
+package actors
 
 import akka.actor.{ActorSystem, Cancellable}
-import com.nashtech.Publisher
 import play.api.db.Database
 import play.api.i18n.Lang.logger
 

@@ -1,4 +1,4 @@
-package com.nashtech.actors
+package actors
 
 import akka.actor.{Actor, ActorLogging, ActorSystem, Cancellable}
 import akka.dispatch.MessageDispatcher

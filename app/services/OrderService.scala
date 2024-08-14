@@ -1,8 +1,8 @@
 package com.nashtech.services
 
+import actors.Publisher
 import akka.actor.ActorRef
 import com.google.inject.ImplementedBy
-import com.nashtech.Publisher
 import com.nashtech.database.OrdersDao
 import com.nashtech.order.v1.models.{Order, OrderForm}
 import play.api.Configuration
