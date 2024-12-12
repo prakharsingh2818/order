@@ -1,24 +1,16 @@
 package com.nashtech.services
 
-import actors.Publisher
-import akka.actor.ActorRef
 import com.google.inject.ImplementedBy
 import com.nashtech.database.OrdersDao
 import com.nashtech.order.v1.models.{Order, OrderForm}
-import play.api.Configuration
-import software.amazon.awssdk.auth.credentials.{AwsBasicCredentials, StaticCredentialsProvider}
-import software.amazon.awssdk.http.nio.netty.NettyNioAsyncHttpClient
-import software.amazon.awssdk.regions.Region
-import software.amazon.awssdk.services.kinesis.KinesisAsyncClient
 
-import javax.inject.{Inject, Named, Singleton}
-import scala.concurrent.Future
+import javax.inject.{Inject, Singleton}
 import scala.util.{Failure, Success, Try}
 
 @ImplementedBy(classOf[OrderServiceImpl])
 trait OrderService {
   def getByNumber(merchantId: String, number: String): Either[Seq[String], Order]
-
+  def getTest: Either[Seq[String], String]
   def createOrder(order: OrderForm, merchantId: String): Either[String, Order]
 
 //  def getAllOrder(merchantId: String): Either[Seq[String], Seq[Order]]
@@ -40,6 +32,18 @@ class OrderServiceImpl @Inject()(dao: OrdersDao) extends OrderService {
     }
   }
 
+  override def getTest: Either[Seq[String], String] = {
+    println("INSIDE SERVICE")
+    Try(dao.getTest()) match {
+      case Failure(exception) =>
+        println(s"FAILED IN SERVICE:\n${exception}\n")
+        Left(Seq(exception.getMessage))
+      case Success(order) =>
+        println(s"SUCCESS IN SERVICE $order")
+        Right(order)
+    }
+  }
+
 //  override def getAllOrder(merchantId: String): Either[Seq[String], Seq[Order]] = {
 //    Try(dao.getAllOrder(merchantId)) match {
 //      case Failure(exception) => Left(Seq(exception.getMessage))
@@ -49,7 +53,9 @@ class OrderServiceImpl @Inject()(dao: OrdersDao) extends OrderService {
 
   override def createOrder(orderForm: OrderForm, merchantId: String): Either[String, Order] = {
     Try(dao.createOrder(orderForm, merchantId)) match {
-      case Success(value) => Right(value)
+      case Success(value) =>
+        println("22222222222222222222")
+        Right(value)
       case Failure(exception) => Left(exception.getMessage)
     }
 

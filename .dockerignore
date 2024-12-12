@@ -1,0 +1,7 @@
+target/
+.bsp/
+.idea/
+Dockerfile
+docker-compose.yml
+.gitignore
+.dockerignore

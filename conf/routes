@@ -2,7 +2,11 @@
 # Service version: 1.0.1
 # apibuilder app.apibuilder.io/nashtech/order/latest/play_2_x_routes
 
++anyhost
 GET        /:merchant_id/orders/:number     com.nashtech.controllers.Orders.getByNumber(merchant_id: String, number: String)
+
++nocsrf anyhost
 POST       /:merchant_id/orders             com.nashtech.controllers.Orders.post(merchant_id: String)
++nocsrf
 PUT        /:merchant_id/orders/:number     com.nashtech.controllers.Orders.putByNumber(merchant_id: String, number: String)
 DELETE     /:merchant_id/orders             com.nashtech.controllers.Orders.delete(merchant_id: String)

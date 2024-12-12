@@ -52,7 +52,7 @@ object Publisher {
     val kinesisClient: KinesisAsyncClient = KinesisAsyncClient.builder()
       .region(Region.US_EAST_1)
       .credentialsProvider(credentialsProvider)
-      .endpointOverride(new java.net.URI("http://localhost:4566"))
+      .endpointOverride(new java.net.URI("http://localstack:4566"))
       .httpClient(NettyNioAsyncHttpClient.builder().build())
       .build()
 
@@ -62,7 +62,7 @@ object Publisher {
 
     val streamName = "order-stream"
 
-    logger.info("Before describing the stream")
+    // logger.info("Before describing the stream")
 //    try {
 //      val result = kinesisClient.describeStream(DescribeStreamRequest.builder().streamName(streamName).build()).get(10, SECONDS)
 //      logger.info(s"getting described stream $result")

@@ -1,11 +1,13 @@
 ThisBuild / version := "0.1.0-SNAPSHOT"
 
 ThisBuild / scalaVersion := "2.13.11"
-
+name := "order"
 lazy val root = (project in file("."))
   .settings(
     name := "order"
   ).enablePlugins(PlayScala)
+
+fork in run := false
 
 libraryDependencies ++= Seq(
   guice,
@@ -13,7 +15,7 @@ libraryDependencies ++= Seq(
   jdbc,
   "org.playframework.anorm" %% "anorm" % "2.7.0",
   "com.typesafe.play" %% "play-json" % "2.9.4",
-"com.typesafe.play" %% "play-server" % "2.8.20",
+  "com.typesafe.play" %% "play-server" % "2.8.20",
   "com.typesafe.play" %% "play-json-joda" % "2.10.1",
   "org.postgresql" % "postgresql" % "42.6.0",
   "com.amazonaws" % "amazon-kinesis-client" % "1.14.10",
