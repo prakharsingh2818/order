@@ -16,6 +16,14 @@ class OrdersDao @Inject()(db: Database) {
     }
   }
 
+  def getTest(): String = {
+    println("INSIDE DAO")
+    db.withConnection { _ =>
+      println(s"EXECUTING QUERY")
+      SQL(BaseQuery.testQuery).toString()
+    }
+  }
+
 //  def getAllOrder(merchantId: String): Seq[Order] = {
 //    db.withConnection { implicit connection =>
 //      SQL(BaseQuery.selectAllQuery(merchantId)).as(OrderParser().*)
@@ -63,7 +71,12 @@ class OrdersDao @Inject()(db: Database) {
   }
 
   private object BaseQuery {
-
+    def testQuery: String = {
+      s"""
+         |select id
+         |from test
+         |""".stripMargin
+    }
     def selectAllQuery(merchantId: String): String = {
       val query =
         s"""

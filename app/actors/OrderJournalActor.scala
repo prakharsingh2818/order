@@ -13,7 +13,8 @@ class OrderJournalActor @Inject()(system: ActorSystem, override val db: Database
   extends DBPollActor(table = "orders") {
 
   override def preStart(): Unit = {
-    logger.info("[OrderJournalActor] Inside preStart")
+    logger.info("[OrderJournalActor] " +
+      "Inside preStart")
     startPolling()
   }
 
@@ -24,10 +25,12 @@ class OrderJournalActor @Inject()(system: ActorSystem, override val db: Database
   override def process(record: ProcessQueueOrder): Unit = {
     record.operation match {
       case "INSERT" | "UPDATE" =>
-//        throw new ArithmeticException("Exception Occur")
-        logger.info("Inside OrderJournalActor before publishing")
+        if(record.order.merchantId.contains("fail")) {
+          throw new RuntimeException("Exception while processing orders")
+        }
+        // logger.info("Inside OrderJournalActor before publishing")
         Publisher.publish(record.order)
-        logger.info("Inside OrderJournalActor after publishing")
+        // logger.info("Inside OrderJournalActor after publishing")
       case "DELETE" =>
         log.info("Inside DELETE operation")
         Success(())

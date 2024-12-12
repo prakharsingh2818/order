@@ -33,17 +33,18 @@ trait PollActor extends Actor with ActorLogging {
 
   override def receive: Receive = {
     case Poll =>
-      logger.info("Inside receive method")
+      // logger.info("Inside receive method")
       safeProcessMessage()
     case Start => // no-op
   }
 
   private def safeProcessMessage(): Unit = {
     Try {
-      logger.info("Inside safeProcessMessage method")
+      // logger.info("Inside safeProcessMessage method")
       processRecord()
     }.recover {
-      case _ => logger.info("Discontinuing with safeProcessMessage method")
+      case _ =>  logger.info("Discontinuing with safeProcessMessage method")
+        ()
     }
   }
 }

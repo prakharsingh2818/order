@@ -4,7 +4,6 @@ import anorm.{RowParser, SQL, SqlParser, ~}
 import com.nashtech.order.v1.models.Order
 import org.joda.time.DateTime
 import play.api.db.Database
-import play.api.i18n.Lang.logger.logger
 
 import scala.util.{Failure, Success, Try}
 
@@ -43,7 +42,7 @@ abstract class DBPollActor(schema: String = "public", table: String) extends Pol
   def process(record: ProcessQueueOrder): Unit
 
   override def processRecord(): Unit = {
-    println("Inside processRecord method")
+    // println("Inside processRecord method")
     val record = getEarliestRecord(processingTable)
     safeProcessRecord(record)
 
@@ -51,16 +50,16 @@ abstract class DBPollActor(schema: String = "public", table: String) extends Pol
 
   private def safeProcessRecord(record: ProcessQueueOrder): Unit = {
     Try {
-      logger.info("Inside safeProcessRecord method")
+      // logger.info("Inside safeProcessRecord method")
       process(record)
     } match {
       case Success(_) =>
-        logger.info("Continuing with safeProcessRecord method")
+        // logger.info("Continuing with safeProcessRecord method")
         deleteProcessingQueueRecord(record.processingQueueId)
         insertJournalRecord(record)
 
       case Failure(ex) =>
-        logger.info("Discontinuing with safeProcessRecord method")
+        // logger.error("Discontinuing with safeProcessRecord method", ex)
         setErrors(record.processingQueueId, ex)
     }
   }
